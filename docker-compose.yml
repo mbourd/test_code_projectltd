@@ -1,0 +1,68 @@
+version: '3'
+
+services:
+  # NOTE: DONT FORGET TO START SERVICE : sudo service docker start
+  database:
+    # network_mode: bridge
+    tty: true
+    container_name: Test_Code_InternetProjectLTD_Db
+    # Image: https://hub.docker.com/_/mysql
+    image: mysql:${MYSQL_VERSION:-8.0}
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-ChangeMe}
+      # Autres variables d'environement possibles :
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-test_code_internetprojectltd}
+      # MYSQL_USER: ${MYSQL_USER:-symfony}
+      # MYSQL_PASSWORD: ${MYSQL_PASSWORD:-ChangeMe}
+      # MYSQL_ALLOW_EMPTY_PASSWORD: yes
+      # ...
+    volumes:
+      - data:/var/lib/mysql
+  phpmyadmin:
+    image: phpmyadmin
+    links:
+      - database
+    restart: always
+    ports:
+      - 81:80
+    environment:
+      - PMA_ARBITRARY=1
+  backend:
+    # network_mode: bridge
+    tty: true
+    container_name: Test_Code_InternetProjectLTD_back
+    image: testproject/internetprojectltd/back:dev
+    build:
+      context: ./
+      dockerfile: .docker/Dockerfile.Symfony
+    command:
+      [
+        "bash",
+        "-c",
+        "symfony --no-interaction server:stop; symfony --no-interaction server:start"
+      ]
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./back:/var/www/default
+    environment:
+      ENV_VAR: "value"
+  frontend:
+    container_name: Test_Code_InternetProjectLTD_front
+    image: testproject/internetprojectltd/front:dev
+    build:
+      context: ./
+      dockerfile: .docker/Dockerfile.React
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./front:/app
+    stdin_open: true
+    environment:
+      - 'EXTEND_ESLINT=true'
+
+volumes:
+  data:
+    name: data_mysql
