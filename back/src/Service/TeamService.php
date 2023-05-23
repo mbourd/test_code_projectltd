@@ -22,16 +22,20 @@ class TeamService
     /** @var CountryService */
     protected $serviceCountry;
 
+    /** @var PlayerService */
+    protected $servicePlayer;
+
     /**
      * TeamService constructor.
      * @param EntityManagerInterface $manager
      * @param CountryService $countryService
      */
-    public function __construct(EntityManagerInterface $manager, CountryService $countryService)
+    public function __construct(EntityManagerInterface $manager, CountryService $countryService, PlayerService $playerService)
     {
         $this->manager = $manager;
         $this->repo = $this->manager->getRepository(Team::class);
         $this->serviceCountry = $countryService;
+        $this->servicePlayer = $playerService;
     }
 
     public function getAll(): array
@@ -98,8 +102,27 @@ class TeamService
     }
 
 
-    public function sellPlayer(Player $player, Team $team1, Team $team2)
+    public function sellPlayersBetween(array $data, Team $team1, Team $team2): array
     {
+        foreach ($data['playersToSell1'] as $_player) {
+            $player = $this->servicePlayer->getById($_player['id']);
+            $player->setTeam($team2);
+            $this->servicePlayer->save($player);
+        }
+        foreach ($data['playersToSell2'] as $_player) {
+            $player = $this->servicePlayer->getById($_player['id']);
+            $player->setTeam($team1);
+            $this->servicePlayer->save($player);
+        }
 
+        $team1->setMoneyBalance($data['newBalance1']);
+        $team2->setMoneyBalance($data['newBalance2']);
+
+        $this->repo->save($team1);
+        $this->repo->save($team2);
+
+        $this->manager->flush();
+
+        return [$team1, $team2];
     }
 }

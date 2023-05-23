@@ -23,4 +23,26 @@ class PlayerService
         $this->manager = $manager;
         $this->repo = $this->manager->getRepository(Player::class);
     }
+
+    /**
+     * @throws EntityNotFoundException
+     * @param int $id
+     * @return Player
+     */
+    public function getById(int $id): Player
+    {
+        $entity = $this->repo->find($id);
+
+        if (is_null($entity)) {
+            throw new EntityNotFoundException("Player id $id not found");
+        }
+
+        return $entity;
+    }
+
+    public function save(Player $player): Player
+    {
+        $this->repo->save($player, true);
+        return $player;
+    }
 }

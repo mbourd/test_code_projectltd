@@ -12,7 +12,6 @@ services:
       - 3306:3306
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-ChangeMe}
-      # Autres variables d'environement possibles :
       MYSQL_DATABASE: ${MYSQL_DATABASE:-test_code_internetprojectltd}
       # MYSQL_USER: ${MYSQL_USER:-symfony}
       # MYSQL_PASSWORD: ${MYSQL_PASSWORD:-ChangeMe}
