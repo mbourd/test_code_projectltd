@@ -179,7 +179,5 @@ class TeamController extends AbstractFOSRestController
             $logger->error($e->getMessage(), $e->getTrace());
             throw $e;
         }
-
-        return $data;
     }
 }
