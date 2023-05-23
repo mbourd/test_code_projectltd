@@ -1,0 +1,13 @@
+.Player-component {
+    margin-top: 25px;
+    margin-bottom: 25px;
+}
+
+.card {
+    background: url("../../../public/icon-player.jpg") no-repeat;
+    -webkit-background-size: contain;
+    -moz-background-size: contain;
+    -o-background-size: contain;
+    background-size: contain;
+    background-color: white;
+}

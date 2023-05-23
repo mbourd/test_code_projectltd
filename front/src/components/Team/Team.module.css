@@ -1,0 +1,42 @@
+.col-form {
+  margin: 15px;
+  background-color: rgba(233, 233, 23, 0.23);
+  border-radius: 23px;
+  padding: 25px;
+}
+
+.span-remove-player {
+  position: relative;
+  top: 23px;
+  left: 174px;
+}
+
+.li-item {
+  background: radial-gradient(white, transparent);
+  border-radius: 20px !important;
+}
+
+.create-new-player {
+  background: url("../../../public/image-player.jpeg");
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  margin-bottom: 25px;
+}
+
+.col {
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 25px;
+  box-shadow: inset 0px 0px 20px 0px rgb(0 0 0 / 60%);
+  padding: 30px;
+  margin: 10px;
+  padding-bottom: 15px;
+}
+
+.delete-cross {
+  position: absolute;
+  right: 0;
+  top: 0;
+  cursor: pointer;
+}

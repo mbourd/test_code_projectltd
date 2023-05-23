@@ -1,0 +1,17 @@
+html {
+  height: 100% !important;
+  /* background-color: black; */
+  background: url("../public/wallpaper-soccer1.jpg") no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
+body {
+  background-color: rgba(0, 0, 0, 0);
+}
+
+.App {
+  text-align: center;
+}

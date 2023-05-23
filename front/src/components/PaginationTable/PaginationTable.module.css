@@ -1,0 +1,12 @@
+.PaginationTable-component {
+  background: radial-gradient(white, transparent);
+  border-radius: 25px;
+}
+
+.pagination {
+  padding: 23px;
+}
+
+.searchBar {
+  background: radial-gradient(white, transparent);
+}
