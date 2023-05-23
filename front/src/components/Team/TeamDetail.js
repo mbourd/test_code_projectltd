@@ -20,7 +20,7 @@ const TeamDetail = ({ }) => {
           setPlayers([...r.data.players]);
         })
         .catch(e => {
-          service.createNotification('error', 'Interval server error:' + JSON.stringify(e));
+          service.createNotification('error', `${e.code}: ${e?.response?.data?.detail}`);
         });
     } else {
       setTeam(location.state);
@@ -56,7 +56,7 @@ const TeamDetail = ({ }) => {
                 </div>
                 <Badge bg="primary" pill>
                   <AnimatedNumber value={team.moneyBalance}
-                    formatValue={(value) => value.toFixed(0)} />
+                    formatValue={(value) => value.toFixed(2)} />
                 </Badge>
               </ListGroup.Item>
               <ListGroup.Item

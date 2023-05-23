@@ -5,12 +5,10 @@ import styles from './Team.module.css';
 import { createRef, useContext, useEffect, useState } from "react";
 import { service } from "../..";
 import Player from '../Player/Player';
-import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 
 const TeamCreate = () => {
-  const [listCountry, setListCountry] = useState([]);
-  const [players, setPlayers] = useState([]);
+  const [listCountry, setListCountry] = useState([{ id: "", name: "-- Choose --" }]);
   const [input1HasError, setInput1HasError] = useState(false);
   const [input2HasError, setInput2HasError] = useState(false);
   const [isSending, setIsSending] = useState(false);
@@ -23,21 +21,17 @@ const TeamCreate = () => {
         setListCountry([{ id: "", name: "-- Choose --" }, ...r.data]);
       })
       .catch(e => {
-        service.createNotification('error', 'Interval server error');
+        service.createNotification('error', `${e.code}: ${e?.response?.data?.detail}`);
       });
   }, []);
 
-  useEffect(() => {
-    refForm.current.values.players = [...players];
-  }, [players]);
-
   const removeNewPlayer = (player) => {
-    const index = players.indexOf(player);
-    const tmp = [...players];
+    const index = refForm.current.values.players.indexOf(player);
+    const tmp = [...refForm.current.values.players];
     if (index > -1) {
       tmp.splice(index, 1);
     }
-    setPlayers([...tmp]);
+    refForm.current.setFieldValue('players', [...tmp]);
   }
 
   const submitForm = (team, resetForm) => {
@@ -45,12 +39,11 @@ const TeamCreate = () => {
     service.team.createTeam(team)
       .then(r => {
         resetForm();
-        setPlayers([]);
         service.createNotification('success', 'New team created ! 🏆 ');
         setIsSending(false);
       })
       .catch(e => {
-        service.createNotification('error', 'Interval server error:' + JSON.stringify(e));
+        service.createNotification('error', `${e.code}: ${e?.response?.data?.detail}`);
         setIsSending(false);
       });
   }
@@ -68,7 +61,7 @@ const TeamCreate = () => {
               name: "",
               country: "",
               moneyBalance: 0,
-              players: players,
+              players: [],
               playerName: "",
               playerSurname: "",
             }}
@@ -105,7 +98,10 @@ const TeamCreate = () => {
                 onNo: () => {
                   setIsSending(false);
                 },
-                afterClose: () => {
+                onClickOutside: () => {
+                  setIsSending(false);
+                },
+                onKeypressEscape: () => {
                   setIsSending(false);
                 }
               });
@@ -280,9 +276,8 @@ const TeamCreate = () => {
                                 service.createNotification('error', 'Player surnname is missing, then add or delete');
                               }
                               if (values.playerSurname !== "" && values.playerName !== "") {
-                                const _players = [...players, { name: values.playerName, surname: values.playerSurname }];
-                                values.players = [..._players];
-                                setPlayers([..._players]);
+                                const _players = [...values.players, { name: values.playerName, surname: values.playerSurname }];
+                                setFieldValue('players', [..._players])
                                 setFieldValue("playerSurname", '');
                                 setFieldValue("playerName", '');
                               }
@@ -299,7 +294,7 @@ const TeamCreate = () => {
                 </Row>
                 <hr />
                 <Row>
-                  {players.map((player, index) => {
+                  {values.players.map((player, index) => {
                     return (
                       <Col md={4} key={"form-new-player-" + index}>
                         <Card className={styles['create-new-player']}>

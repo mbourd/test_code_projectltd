@@ -2,13 +2,11 @@ import React, { Fragment, useMemo, useState } from "react";
 import { useTable, useFilters, useGlobalFilter, useAsyncDebounce, usePagination, useSortBy, useExpanded } from 'react-table';
 import { Link, useNavigate } from "react-router-dom";
 import styles from './PaginationTable.module.css';
-import { Row, Col } from "react-bootstrap";
 import AnimatedNumber from "animated-number-react";
 
 function Table({ columns, data, sizePagination, atPage }) {
   const defaultColumn = React.useMemo(
     () => ({
-      // Default Filter UI
       Filter: ColumnFilter,
     }),
     []
@@ -98,8 +96,16 @@ function Table({ columns, data, sizePagination, atPage }) {
                     </td>
                   }
 
-                  if (cell.column.Header === 'Money balance'
-                    || cell.column.Header === 'Total players') {
+                  if (cell.column.Header === 'Money balance') {
+                    return <td {...cell.getCellProps()}>
+                      <AnimatedNumber
+                        value={cell.render('Cell').props.cell.row.original[cell.render('Cell').props.cell.column.id]}
+                        formatValue={(value) => value.toFixed(2)}
+                      />
+                    </td>
+                  }
+
+                  if (cell.column.Header === 'Total players') {
                     return <td {...cell.getCellProps()}>
                       <AnimatedNumber
                         value={cell.render('Cell').props.cell.row.original[cell.render('Cell').props.cell.column.id]}

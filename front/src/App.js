@@ -24,6 +24,7 @@ const App = ({ }) => {
           </Row>
         </Container>
         <footer>
+          Football teams
         </footer>
         <NotificationContainer />
       </div>

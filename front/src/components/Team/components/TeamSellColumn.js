@@ -7,6 +7,8 @@ import AnimatedNumber from "animated-number-react";
 import Player from "../../Player/Player";
 
 const TeamSellColumn = ({
+  resultIncome = 0,
+  resultBalance = 0,
   teamObjectRemovedListTeam = {},
   isSending = false,
   handleChange = () => { },
@@ -19,16 +21,6 @@ const TeamSellColumn = ({
   playersToSell = [],
   numCol = 1
 }) => {
-  const PopoverRemove = ({ myData }) => {
-    return (
-      <Popover id="popover-basic">
-        <Popover.Body>
-          {!isSending && <Button onClick={() => console.log(myData)} variant="danger">Remove ❌</Button>}
-        </Popover.Body>
-      </Popover>
-    );
-  }
-
   return (
     <Col className={styles.col}>
       {teamObjectRemovedListTeam &&
@@ -47,7 +39,7 @@ const TeamSellColumn = ({
                   <Badge bg="primary" pill>
                     <AnimatedNumber
                       value={teamObjectRemovedListTeam.moneyBalance}
-                      formatValue={(value) => value.toFixed(0)}
+                      formatValue={(value) => value.toFixed(2)}
                     />
                   </Badge>
                 </ListGroup.Item>
@@ -62,11 +54,51 @@ const TeamSellColumn = ({
                   className={styles['li-item'] + " d-flex justify-content-between align-items-start"}
                 >
                   <div className="ms-2 me-auto">
-                    <div className="fw-bold">Result income 📈</div>
+                    <div className="fw-bold">Result income 💰</div>
                   </div>
-                  <Badge bg="primary" pill>
+                  <Badge bg={resultIncome < 0 ? "danger" : (resultIncome > 0 ? "success" : "warning")} pill>
                     <AnimatedNumber
-                      value={teamObjectRemovedListTeam.moneyBalance}
+                      value={resultIncome}
+                      formatValue={(value) => value.toFixed(2)}
+                    />
+                  </Badge>
+                </ListGroup.Item>
+              </ListGroup>
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <ListGroup variant='flush'>
+                <ListGroup.Item
+                  as="li"
+                  className={styles['li-item'] + " d-flex justify-content-between align-items-start"}
+                >
+                  <div className="ms-2 me-auto">
+                    <div className="fw-bold">Result balance 📈</div>
+                  </div>
+                  <Badge bg={resultBalance < 0 ? "danger" : (resultBalance > 0 ? "success" : "warning")} pill>
+                    <AnimatedNumber
+                      value={resultBalance}
+                      formatValue={(value) => value.toFixed(2)}
+                    />
+                  </Badge>
+                </ListGroup.Item>
+              </ListGroup>
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <ListGroup variant='flush'>
+                <ListGroup.Item
+                  as="li"
+                  className={styles['li-item'] + " d-flex justify-content-between align-items-start"}
+                >
+                  <div className="ms-2 me-auto">
+                    <div className="fw-bold">Total players to sell</div>
+                  </div>
+                  <Badge bg={"primary"} pill>
+                    <AnimatedNumber
+                      value={values['playersToSell' + numCol].length}
                       formatValue={(value) => value.toFixed(0)}
                     />
                   </Badge>
@@ -126,7 +158,7 @@ const TeamSellColumn = ({
               <Form.Group className="mb-6">
                 <Form.Label>&nbsp;</Form.Label>
                 <Form.Control
-                  disabled={/*input11HasError || input12HasError || */values['playerToSell' + numCol] === "" || isSending}
+                  disabled={values['playerToSell' + numCol] === "" || isSending}
                   type="button"
                   variant="success"
                   value={'Add ✔️'}
@@ -160,17 +192,17 @@ const TeamSellColumn = ({
                         <Badge bg="success" pill>
                           <AnimatedNumber
                             value={data.price}
-                            formatValue={(value) => value.toFixed(0)}
+                            formatValue={(value) => value.toFixed(2)}
                           />
                         </Badge>
-                        <span className={styles['delete-cross']} onClick={() => {
+                        {!isSending && <span className={styles['delete-cross']} onClick={() => {
                           delete data.price;
                           const tmp = [...listPlayersAvailable, data];
                           tmp.sort((a, b) => a.id - b.id);
                           values['playersToSell' + numCol] = values['playersToSell' + numCol].filter(p => p.id !== data.id);
                           setListPlayersAvailable(tmp);
                           setPlayersToSell(values['playersToSell' + numCol]);
-                        }}>❌</span>
+                        }}>❌</span>}
                       </Card.Body>
                     </Card>
                   </Col>

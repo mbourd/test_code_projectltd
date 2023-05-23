@@ -20,7 +20,7 @@ const MainPage = ({ }) => {
         setListTeam([..._listTeam]);
       })
       .catch(e => {
-        service.createNotification('error', 'Interval server error: ' + e.message);
+        service.createNotification('error', `${e.code}: ${e?.response?.data?.detail}`);
       });
   }, []);
 

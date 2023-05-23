@@ -4,11 +4,8 @@ import * as Yup from "yup";
 import styles from './Team.module.css';
 import { createRef, useContext, useEffect, useState } from "react";
 import { service } from "../..";
-import Player from '../Player/Player';
-import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 import { useLocation } from "react-router";
-import AnimatedNumber from "animated-number-react";
 import TeamSellColumn from "./components/TeamSellColumn";
 
 const TeamSell = ({ }) => {
@@ -26,18 +23,19 @@ const TeamSell = ({ }) => {
   const [teamObjectRemovedListTeam2, setTeamObjectRemovedListTeam2] = useState(null);
   const [listPlayersAvailable1, setListPlayersAvailable1] = useState([]);
   const [listPlayersAvailable2, setListPlayersAvailable2] = useState([]);
+  const [resultIncome1, setResultIncome1] = useState(0);
+  const [resultIncome2, setResultIncome2] = useState(0);
+  const [resultBalance1, setResultBalance1] = useState(0);
+  const [resultBalance2, setResultBalance2] = useState(0);
 
   useEffect(() => {
-    service.createNotification('info', 'Fetching teams list...');
-
     service.team.getListTeam()
       .then(r => {
-        service.createNotification('success', 'Retrieved all teams');
         setListTeams1([{ id: "", name: "-- Choose --" }, ...r.data]);
         setListTeams2([{ id: "", name: "-- Choose --" }, ...r.data]);
       })
       .catch(e => {
-        service.createNotification('error', 'Interval server error');
+        service.createNotification('error', `${e.code}: ${e?.response?.data?.detail}`);
       });
   }, []);
 
@@ -61,7 +59,7 @@ const TeamSell = ({ }) => {
     }
 
     setPlayersToSell1([]);
-    refForm.current.values.playersToSell1 = [];
+    refForm.current.setFieldValue('playersToSell1', []);
   }, [selectedIdTeam1]);
 
   useEffect(() => {
@@ -84,8 +82,20 @@ const TeamSell = ({ }) => {
     }
 
     setPlayersToSell2([]);
-    refForm.current.values.playersToSell2 = [];
+    refForm.current.setFieldValue('playersToSell2', []);
   }, [selectedIdTeam2]);
+
+  useEffect(() => {
+    const income1 = playersToSell1.reduce((income, player) => income + player.price, 0)
+      - playersToSell2.reduce((invest, player) => invest + player.price, 0);
+    setResultIncome1(income1);
+    setResultBalance1(teamObjectRemovedListTeam2?.moneyBalance + income1);
+
+    const income2 = playersToSell2.reduce((income, player) => income + player.price, 0)
+      - playersToSell1.reduce((invest, player) => invest + player.price, 0);
+    setResultIncome2(income2);
+    setResultBalance2(teamObjectRemovedListTeam1?.moneyBalance + income2);
+  }, [playersToSell1, playersToSell2]);
 
   return (
     <div className={styles['TeamSell-component']}>
@@ -126,20 +136,59 @@ const TeamSell = ({ }) => {
                 })
               ),
             })}
-            onSubmit={(values, { resetForm }) => {
-              console.log(values.playersToSell1);
-              console.log(values.playersToSell2);
+            onSubmit={(values, { resetForm, setFieldValue }) => {
+              const _values = { ...values };
+              delete _values.price1;
+              delete _values.price2;
+              delete _values.playerToSell1;
+              delete _values.playerToSell2;
+
+              if (resultBalance1 < 0) {
+                service.createNotification("error", `Impossible to proceed sells: ${teamObjectRemovedListTeam2.name} result balance is negative`);
+                return;
+              }
+              if (resultBalance2 < 0) {
+                service.createNotification("error", `Impossible to proceed sells: ${teamObjectRemovedListTeam1.name} result balance is negative`);
+                return;
+              }
 
               setIsSending(true);
               service.confirmAlert("Confirm to proceed sells ?", {
                 onYes: () => {
                   service.createNotification('info', 'Sellings...');
-
+                  service.team.teamProceedSells(_values)
+                    .then(r => {
+                      const _team1 = { ...r.data[0] };
+                      const _team2 = { ...r.data[1] };
+                      const _listTeams1 = listTeams1.filter(t => t.id !== _team1.id);
+                      const _listTeams2 = listTeams2.filter(t => t.id !== _team2.id);
+                      _listTeams1.push(_team1);
+                      _listTeams1.sort((a, b) => a.id - b.id);
+                      _listTeams2.push(_team2);
+                      _listTeams2.sort((a, b) => a.id - b.id);
+                      setFieldValue('playersToSell1', []);
+                      setFieldValue('playersToSell2', []);
+                      setPlayersToSell1([]);
+                      setPlayersToSell2([]);
+                      setListTeams1(_listTeams1);
+                      setListTeams2(_listTeams2);
+                      setTeamObjectRemovedListTeam2(_team1);
+                      setTeamObjectRemovedListTeam1(_team2);
+                      setListPlayersAvailable1([...listPlayersAvailable1.filter(p => p.id === ""), ..._team1.players]);
+                      setListPlayersAvailable2([...listPlayersAvailable2.filter(p => p.id === ""), ..._team2.players]);
+                      service.createNotification('success', 'Players transfered to their new team ! 🤝🏻');
+                    })
+                    .catch(e => {
+                      service.createNotification('error', `${e.code}: ${e?.response?.data?.detail}`);
+                    });
                 },
                 onNo: () => {
-                  setIsSending(true);
+                  setIsSending(false);
                 },
-                afterClose: () => {
+                onClickOutside: () => {
+                  setIsSending(false);
+                },
+                onKeypressEscape: () => {
                   setIsSending(false);
                 }
               })
@@ -241,6 +290,8 @@ const TeamSell = ({ }) => {
                 </Row>
                 <Row>
                   <TeamSellColumn
+                    resultIncome={resultIncome1}
+                    resultBalance={resultBalance1}
                     teamObjectRemovedListTeam={teamObjectRemovedListTeam2}
                     isSending={isSending}
                     handleChange={handleChange}
@@ -254,6 +305,8 @@ const TeamSell = ({ }) => {
                     numCol={1}
                   />
                   <TeamSellColumn
+                    resultIncome={resultIncome2}
+                    resultBalance={resultBalance2}
                     teamObjectRemovedListTeam={teamObjectRemovedListTeam1}
                     isSending={isSending}
                     handleChange={handleChange}
@@ -273,7 +326,7 @@ const TeamSell = ({ }) => {
                     type="submit"
                     variant="info"
                     onClick={handleSubmit}
-                  >🏆⚽ Proceed sells ⚽🏆</Button>
+                  >💵⚽ Proceed sells ⚽💵</Button>
                 </Row>
               </Form>
             )}

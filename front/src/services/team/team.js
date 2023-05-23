@@ -12,4 +12,8 @@ export class team {
   createTeam(team) {
     return axiosApi.post("/team/create", team);
   }
+
+  teamProceedSells(data) {
+    return axiosApi.put("/team/proceedSells", data);
+  }
 }

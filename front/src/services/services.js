@@ -21,7 +21,7 @@ export class services {
         return NotificationManager.warning(message, title, 3000);
         break;
       case 'error':
-        return NotificationManager.error(message, title, 30000, () => { });
+        return NotificationManager.error(message, title, 15000, () => { });
         break;
     }
   }
