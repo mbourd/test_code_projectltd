@@ -6,6 +6,7 @@ use App\Entity\Team;
 use App\Form\PlayerType;
 use App\Form\TeamType;
 use App\Service\CountryService;
+use App\Service\PlayerService;
 use App\Service\TeamService;
 use FOS\RestBundle\Controller\{
     Annotations as Rest,
@@ -137,13 +138,14 @@ class TeamController extends AbstractFOSRestController
      *
      * @throws Exception
      * @param Request $request
+     * @param PlayerService $playerService
      * @param TeamService $teamService
      * @param TranslatorInterface $translator
      * @param LoggerInterface $logger
      *
      * @return Team
      */
-    public function proceedSells(Request $request, TeamService $teamService, TranslatorInterface $translator, LoggerInterface $logger): array
+    public function proceedSells(Request $request, TeamService $teamService, PlayerService $playerService, TranslatorInterface $translator, LoggerInterface $logger): array
     {
         try {
             // Get the language
@@ -192,10 +194,18 @@ class TeamController extends AbstractFOSRestController
             foreach ([$data['playersToSell1'], $data['playersToSell2']] as $playersToSell) {
                 foreach ($playersToSell as $player) {
                     $_player = array_merge([], $player);
+
+                    if (is_null($playerService->getById($_player['id']))) {
+                        throw new EntityNotFoundException($translator->trans("controller.team.proceedSells.playerNotFound", [
+                            "{{id}}" => $_player['id']
+                        ], 'messages', $lng));
+                    }
+
                     unset($_player['price']);
                     unset($_player['id']);
                     $form = $this->createForm(PlayerType::class, null, ['method' => 'POST', 'csrf_protection' => false]);
                     $form->submit($_player, true);
+
                     if (!$form->isValid()) {
                         throw new Exception($form->getErrors(true, true));
                     }
