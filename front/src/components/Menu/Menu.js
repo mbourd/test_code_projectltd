@@ -11,9 +11,9 @@ const Menu = ({ }) => {
   return (
     <div className={styles['Menu-component']}>
       <Row>
-        <Col><Link to='/'>🏠 {t('mainPage')}</Link></Col>
-        <Col><Link to='/team/create'>🔰 {t('teamCreate')}</Link></Col>
-        <Col><Link to='/team/sell'>💲 {t('teamSell')}</Link></Col>
+        <Col className={styles.col}><Link to='/'>🏠 {t('mainPage')}</Link></Col>
+        <Col className={styles.col}><Link to='/team/create'>🔰 {t('teamCreate')}</Link></Col>
+        <Col className={styles.col}><Link to='/team/sell'>💲 {t('teamSell')}</Link></Col>
       </Row>
     </div>
   );
