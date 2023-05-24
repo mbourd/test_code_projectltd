@@ -14,4 +14,5 @@ controller:
       playersToSell2NotArray: "playersToSell2 must be an array"
       balanceNegative: "Impossible to proceed sells: {{teamName}} result balance is negative"
       sameTeamNotAllowed: "Same team not allowed"
+      noPlayersToSellNotAllowed: "Impossible to proceed sells. No players to sell"
       playerNotFound: "Player id {{id}} not found"
