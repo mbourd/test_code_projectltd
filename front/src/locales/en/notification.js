@@ -12,7 +12,8 @@ export default {
   error: {
     sellTeamNoPlayers: `Impossible to proceed sells. No players to sell`,
     sellTeamNegativeBalance: `Impossible to proceed sells: {{teamName}} result balance is negative`,
-    createTeamMissingName:'Player name is missing, then add the new player',
-    createTeamMissingSurname:'Player surname is missing, then add the new player',
+    sellTeamSameNotAllowed: "Same team not allowed",
+    createTeamMissingName: 'Player name is missing, then add the new player',
+    createTeamMissingSurname: 'Player surname is missing, then add the new player',
   }
 }

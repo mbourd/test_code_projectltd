@@ -149,6 +149,10 @@ const TeamSell = ({ }) => {
                 service.createNotification("error", tnotif('error.sellTeamNegativeBalance').replace('{{teamName}}', teamObjectRemovedListTeam1.name));
                 return;
               }
+              if (_values.idTeam1 === _values.idTeam2) {
+                service.createNotification("error", tnotif('error.sellTeamSameNotAllowed'));
+                return;
+              }
               if (_values.playersToSell1.length === 0 && _values.playersToSell2.length === 0) {
                 service.createNotification("error", tnotif('error.sellTeamNoPlayers'));
                 return;
