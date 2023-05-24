@@ -192,7 +192,7 @@ class TeamController extends AbstractFOSRestController
             if ($team1->getId() === $team2->getId()) {
                 throw new Exception($translator->trans("controller.team.proceedSells.sameTeamNotAllowed", [], 'messages', $lng));
             }
-            if (count($data['playersToSell1']) === 0 && count($data['playersToSell2']) == 0) {
+            if (count($data['playersToSell1']) === 0 && count($data['playersToSell2']) === 0) {
                 throw new Exception($translator->trans("controller.team.proceedSells.noPlayersToSellNotAllowed", [], 'messages', $lng));
             }
 
