@@ -2,11 +2,13 @@
 
 namespace App\Controller;
 
+use App\Entity\Player;
 use App\Entity\Team;
 use App\Form\PlayerType;
 use App\Form\TeamType;
 use App\Service\CountryService;
 use App\Service\TeamService;
+use Doctrine\Common\Collections\ArrayCollection;
 use FOS\RestBundle\Controller\{
     Annotations as Rest,
     AbstractFOSRestController
@@ -73,7 +75,7 @@ class TeamController extends AbstractFOSRestController
      *
      * @return Team
      */
-    public function createTeam(Request $request, TeamService $teamService, CountryService $countryService, LoggerInterface $logger): Team
+    public function createTeam(Request $request, TeamService $teamService, CountryService $countryService, LoggerInterface $logger)
     {
         try {
             // Retrieve data
@@ -84,6 +86,15 @@ class TeamController extends AbstractFOSRestController
             }
 
             $country = $countryService->getById($data['country']);
+
+            foreach ($data['players'] as $player) {
+                $_player = array_merge([], $player);
+                $form = $this->createForm(PlayerType::class, null, ['method' => 'POST', 'csrf_protection' => false]);
+                $form->submit($_player, true);
+                if (!$form->isValid()) {
+                    throw new Exception($form->getErrors(true, true));
+                }
+            }
 
             // Check form type for Team
             $form = $this->createForm(TeamType::class, null, ['method' => 'POST', 'csrf_protection' => false]);

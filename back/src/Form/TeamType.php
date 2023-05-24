@@ -23,6 +23,8 @@ class TeamType extends AbstractType
             ])
             ->add('players', CollectionType::class, [
                 'entry_type' => PlayerType::class,
+                'allow_add' => true,
+                // 'allow_delete' => true
             ])
         ;
     }
