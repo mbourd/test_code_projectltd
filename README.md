@@ -60,3 +60,7 @@ Please review the files before to execute them
 
 5/ Down all containers
 - `docker-compose -f 'docker-compose.yml' down` to remove the containers network
+
+-------
+
+— Maxime Bobby Bourdin
