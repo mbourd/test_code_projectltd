@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service;
 
 use App\Entity\{Player};
@@ -35,6 +37,11 @@ class PlayerService
         return $entity;
     }
 
+    /**
+     * @param Player $player
+     *
+     * @return Player
+     */
     public function save(Player $player): Player
     {
         $this->repo->save($player, true);

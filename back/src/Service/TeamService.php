@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service;
 
 use App\Entity\{Team, Player};
@@ -37,6 +39,9 @@ class TeamService
         $this->servicePlayer = $playerService;
     }
 
+    /**
+     * @return array
+     */
     public function getAll(): array
     {
         return $this->repo->findAll();

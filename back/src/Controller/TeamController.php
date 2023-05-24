@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
 use App\Entity\Team;
@@ -63,7 +65,7 @@ class TeamController extends AbstractFOSRestController
             // Get the language
             $lng = $request->headers->get('lng');
 
-            $entity = $teamService->getById($idTeam);
+            $entity = $teamService->getById(intval($idTeam));
 
             if (is_null($entity)) {
                 throw new EntityNotFoundException($translator->trans("controller.team.getTeam.teamNotFound", [
@@ -102,6 +104,7 @@ class TeamController extends AbstractFOSRestController
                 throw new EntityNotFoundException($translator->trans('controller.team.createTeam.countryIdNull', [], 'messages', $lng));
             }
 
+            $data['country'] = intval($data['country']);
             $country = $countryService->getById($data['country']);
 
             if (is_null($country)) {
@@ -115,7 +118,7 @@ class TeamController extends AbstractFOSRestController
                 $form = $this->createForm(PlayerType::class, null, ['method' => 'POST', 'csrf_protection' => false]);
                 $form->submit($_player, true);
                 if (!$form->isValid()) {
-                    throw new Exception($form->getErrors(true, true));
+                    throw new Exception($form->getErrors(true, true)->__toString());
                 }
             }
 
@@ -123,7 +126,7 @@ class TeamController extends AbstractFOSRestController
             $form = $this->createForm(TeamType::class, null, ['method' => 'POST', 'csrf_protection' => false]);
             $form->submit($data, true);
             if (!$form->isValid()) {
-                throw new Exception($form->getErrors(true, true));
+                throw new Exception($form->getErrors(true, true)->__toString());
             }
 
             return $teamService->createTeam($data);
@@ -171,10 +174,10 @@ class TeamController extends AbstractFOSRestController
                 throw new Exception($translator->trans("controller.team.proceedSells.playersToSell2NotArray", [], 'messages', $lng));
             }
 
-            $idTeam1 = $data['idTeam1'];
-            $idTeam2 = $data['idTeam2'];
-            $team1 = $teamService->getById($idTeam1);
-            $team2 = $teamService->getById($idTeam2);
+            $data['idTeam1'] = intval($data['idTeam1']);
+            $data['idTeam2'] = intval($data['idTeam2']);
+            $team1 = $teamService->getById($data['idTeam1']);
+            $team2 = $teamService->getById($data['idTeam2']);
 
             if (is_null($team1)) {
                 throw new EntityNotFoundException($translator->trans("controller.team.proceedSells.teamNotFound", [
@@ -207,7 +210,7 @@ class TeamController extends AbstractFOSRestController
                     $form->submit($_player, true);
 
                     if (!$form->isValid()) {
-                        throw new Exception($form->getErrors(true, true));
+                        throw new Exception($form->getErrors(true, true)->__toString());
                     }
                 }
             }

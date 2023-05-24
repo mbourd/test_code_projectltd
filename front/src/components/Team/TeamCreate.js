@@ -81,7 +81,8 @@ const TeamCreate = () => {
               playerSurname: Yup.string(),
             })}
             onSubmit={(values, { resetForm }) => {
-              const _dataToSend = { ...values };
+              const _dataToSend = { ...values, country: parseInt(values.country) };
+
               if (input1HasError) {
                 service.createNotification('error', tnotif('error.createTeamMissingName'));
               }

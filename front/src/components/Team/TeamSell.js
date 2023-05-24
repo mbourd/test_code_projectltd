@@ -139,7 +139,7 @@ const TeamSell = ({ }) => {
               ),
             })}
             onSubmit={(values, { resetForm, setFieldValue }) => {
-              const _values = { ...values };
+              const _values = { ...values, idTeam1: parseInt(values.idTeam1), idTeam2: parseInt(values.idTeam2) };
 
               if (resultBalance1 < 0) {
                 service.createNotification("error", tnotif('error.sellTeamNegativeBalance').replace('{{teamName}}', teamObjectRemovedListTeam2.name));

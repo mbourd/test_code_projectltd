@@ -77,9 +77,8 @@ export default function CustomizedMenus() {
             aria-haspopup="true"
             aria-expanded={open ? 'true' : undefined}
             variant="text"
-            disableElevation
             onClick={handleClick}
-            endIcon={<KeyboardArrowDownIcon />}
+            endicon={<KeyboardArrowDownIcon />}
             style={{cursor:'pointer'}}
           />
           {/* <Button
