@@ -1,10 +1,27 @@
 # test_code_internetprojectltd
 
+## Project context
+
+We have football teams. Each team has a name, country, money balance and players.
+Each player has name and surname.
+Teams can sell/buy players.
+
+What we need in our app:
+- Make a page (with pagination) displaying all teams and their players.
+- Make a page where we can add a new team and its players.
+- Make a page where we can sell/buy a player for a certain amount between two teams.
+
 ## Note
 
-I developed on WSL Linux Ubuntu 20.04
+I developed on WSL Linux Ubuntu 20.04 on a virtual machine.
 
-- Install Docker && Docker compose
+- Install Docker && Docker
+- `chmod 755 ./install-docker.sh`
+- `chmod 755 ./install-docker-compose.sh`
+
+Please review the files before to execute them
+- `./install-docker.sh`
+- `./install-docker-compose.sh`
 
 1/ Deploy Local Dev Environment
 - `sudo service docker start` to start the docker service
