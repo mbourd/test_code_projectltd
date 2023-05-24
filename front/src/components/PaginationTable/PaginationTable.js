@@ -142,6 +142,8 @@ function Table({ columns, data, sizePagination, atPage }) {
         <li className="page-item" onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage}>
           <a className="page-link">{t('paginate.last')}</a>
         </li>
+
+        {/* Current page number */}
         <li>
           <a className="page-link">
             {t('paginate.currentPage.1') + ' '}
@@ -150,6 +152,8 @@ function Table({ columns, data, sizePagination, atPage }) {
             </strong>{' '}
           </a>
         </li>
+
+        {/* Got to page number */}
         <li>
           <a className="page-link" style={{ 'height': '100%' }}>
             <input
@@ -164,6 +168,8 @@ function Table({ columns, data, sizePagination, atPage }) {
             />
           </a>
         </li>{' '}
+
+        {/* Page size */}
         <select
           className="form-control"
           value={pageSize}
