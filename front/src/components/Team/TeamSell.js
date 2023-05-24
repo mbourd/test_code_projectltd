@@ -6,14 +6,19 @@ import { createRef, useContext, useEffect, useState } from "react";
 import { service } from "../..";
 import 'react-confirm-alert/src/react-confirm-alert.css';
 import TeamSellColumn from "./components/TeamSellColumn";
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 
 const TeamSell = ({ }) => {
+  const translator = { team: useTranslation('team'), notif: useTranslation('notification') };
+  const tteam = translator.team.t;
+  const tnotif = translator.notif.t;
   const refForm = createRef();
   const [playersToSell1, setPlayersToSell1] = useState([]);
   const [playersToSell2, setPlayersToSell2] = useState([]);
   const [isSending, setIsSending] = useState(false);
-  const [listTeams1, setListTeams1] = useState([{ id: "", name: "-- Choose --" }]);
-  const [listTeams2, setListTeams2] = useState([{ id: "", name: "-- Choose --" }]);
+  const [listTeams1, setListTeams1] = useState([{ id: "", name: tteam('sell.form.input.select.defaultOptionLabel') }]);
+  const [listTeams2, setListTeams2] = useState([{ id: "", name: tteam('sell.form.input.select.defaultOptionLabel') }]);
   const [selectedIdTeam1, setSelectedIdTeam1] = useState("");
   const [selectedIdTeam2, setSelectedIdTeam2] = useState("");
   const [teamObjectRemovedListTeam1, setTeamObjectRemovedListTeam1] = useState(null);
@@ -28,8 +33,8 @@ const TeamSell = ({ }) => {
   useEffect(() => {
     service.team.getListTeam()
       .then(r => {
-        setListTeams1([{ id: "", name: "-- Choose --" }, ...r.data]);
-        setListTeams2([{ id: "", name: "-- Choose --" }, ...r.data]);
+        setListTeams1([{ id: "", name: tteam('sell.form.input.select.defaultOptionLabel') }, ...r.data]);
+        setListTeams2([{ id: "", name: tteam('sell.form.input.select.defaultOptionLabel') }, ...r.data]);
       })
       .catch(e => {
         service.createNotification('error', `${e.code}: ${e?.response?.data?.detail}`);
@@ -49,7 +54,7 @@ const TeamSell = ({ }) => {
     if (selectedIdTeam1 !== "") {
       const tmpTeam1 = listTeams1.find(o => o.id === parseInt(selectedIdTeam1));
       setTeamObjectRemovedListTeam2(tmpTeam1);
-      setListPlayersAvailable1([{ id: "", name: "-- Choose --" }, ...tmpTeam1.players]);
+      setListPlayersAvailable1([{ id: "", name: tteam('sell.form.input.select.defaultOptionLabel') }, ...tmpTeam1.players]);
       const index = tmp.indexOf(tmpTeam1);
       tmp.splice(index, 1);
       setListTeams2(tmp);
@@ -72,7 +77,7 @@ const TeamSell = ({ }) => {
     if (selectedIdTeam2 !== "") {
       const tmpTeam2 = listTeams2.find(o => o.id === parseInt(selectedIdTeam2));
       setTeamObjectRemovedListTeam1(tmpTeam2);
-      setListPlayersAvailable2([{ id: "", name: "-- Choose --" }, ...tmpTeam2.players]);
+      setListPlayersAvailable2([{ id: "", name: tteam('sell.form.input.select.defaultOptionLabel') }, ...tmpTeam2.players]);
       const index = tmp.indexOf(tmpTeam2);
       tmp.splice(index, 1);
       setListTeams1(tmp);
@@ -97,7 +102,7 @@ const TeamSell = ({ }) => {
   return (
     <div className={styles['TeamSell-component']}>
       <Row>
-        <Col><h3>Team sell</h3></Col>
+        <Col><h3>{tteam('sell.title')}</h3></Col>
       </Row>
       <Row>
         <div className="">
@@ -114,8 +119,8 @@ const TeamSell = ({ }) => {
               price2: 0,
             }}
             validationSchema={() => Yup.object().shape({
-              idTeam1: Yup.string().required("Please select a team"),
-              idTeam2: Yup.string().required("Please select a team"),
+              idTeam1: Yup.string().required(tteam('sell.form.validationSchema.idTeam1')),
+              idTeam2: Yup.string().required(tteam('sell.form.validationSchema.idTeam2')),
               playersToSell1: Yup.array().of(
                 Yup.object().shape({
                   id: Yup.number().required(),
@@ -135,60 +140,69 @@ const TeamSell = ({ }) => {
             })}
             onSubmit={(values, { resetForm, setFieldValue }) => {
               const _values = { ...values };
+
+              if (resultBalance1 < 0) {
+                service.createNotification("error", tnotif('error.sellTeamNegativeBalance').replace('{{teamName}}', teamObjectRemovedListTeam2.name));
+                return;
+              }
+              if (resultBalance2 < 0) {
+                service.createNotification("error", tnotif('error.sellTeamNegativeBalance').replace('{{teamName}}', teamObjectRemovedListTeam1.name));
+                return;
+              }
+              if (_values.playersToSell1.length === 0 && _values.playersToSell2.length === 0) {
+                service.createNotification("error", tnotif('error.sellTeamNoPlayers'));
+                return;
+              }
+
               delete _values.price1;
               delete _values.price2;
               delete _values.playerToSell1;
               delete _values.playerToSell2;
 
-              if (resultBalance1 < 0) {
-                service.createNotification("error", `Impossible to proceed sells: ${teamObjectRemovedListTeam2.name} result balance is negative`);
-                return;
-              }
-              if (resultBalance2 < 0) {
-                service.createNotification("error", `Impossible to proceed sells: ${teamObjectRemovedListTeam1.name} result balance is negative`);
-                return;
-              }
-
               setIsSending(true);
-              service.confirmAlert("Confirm to proceed sells ?", {
-                onYes: () => {
-                  service.createNotification('info', 'Sellings...');
-                  service.team.teamProceedSells(_values)
-                    .then(r => {
-                      const _team1 = { ...r.data[0] };
-                      const _team2 = { ...r.data[1] };
-                      const _listTeams1 = listTeams1.filter(t => t.id !== _team1.id);
-                      const _listTeams2 = listTeams2.filter(t => t.id !== _team2.id);
-                      _listTeams1.push(_team1);
-                      _listTeams1.sort((a, b) => a.id - b.id);
-                      _listTeams2.push(_team2);
-                      _listTeams2.sort((a, b) => a.id - b.id);
-                      setFieldValue('playersToSell1', []);
-                      setFieldValue('playersToSell2', []);
-                      setPlayersToSell1([]);
-                      setPlayersToSell2([]);
-                      setListTeams1(_listTeams1);
-                      setListTeams2(_listTeams2);
-                      setTeamObjectRemovedListTeam2(_team1);
-                      setTeamObjectRemovedListTeam1(_team2);
-                      setListPlayersAvailable1([...listPlayersAvailable1.filter(p => p.id === ""), ..._team1.players]);
-                      setListPlayersAvailable2([...listPlayersAvailable2.filter(p => p.id === ""), ..._team2.players]);
-                      service.createNotification('success', 'Players transfered to their new team ! 🤝🏻');
-                    })
-                    .catch(e => {
-                      service.createNotification('error', `${e.code}: ${e?.response?.data?.detail}`);
-                    });
-                },
-                onNo: () => {
-                  setIsSending(false);
-                },
-                onClickOutside: () => {
-                  setIsSending(false);
-                },
-                onKeypressEscape: () => {
-                  setIsSending(false);
-                }
-              })
+              service.confirmAlert(
+                tteam('sell.confirmAlert.confirmSell.title'), tteam('sell.confirmAlert.confirmSell.message'),
+                {
+                  onYes: () => {
+                    service.createNotification('info', tnotif('info.sendingData'));
+                    service.team.teamProceedSells(_values)
+                      .then(r => {
+                        const _team1 = { ...r.data[0] };
+                        const _team2 = { ...r.data[1] };
+                        const _listTeams1 = listTeams1.filter(t => t.id !== _team1.id);
+                        const _listTeams2 = listTeams2.filter(t => t.id !== _team2.id);
+                        _listTeams1.push(_team1);
+                        _listTeams1.sort((a, b) => a.id - b.id);
+                        _listTeams2.push(_team2);
+                        _listTeams2.sort((a, b) => a.id - b.id);
+                        setFieldValue('playersToSell1', []);
+                        setFieldValue('playersToSell2', []);
+                        setPlayersToSell1([]);
+                        setPlayersToSell2([]);
+                        setListTeams1(_listTeams1);
+                        setListTeams2(_listTeams2);
+                        setTeamObjectRemovedListTeam2(_team1);
+                        setTeamObjectRemovedListTeam1(_team2);
+                        setListPlayersAvailable1([...listPlayersAvailable1.filter(p => p.id === ""), ..._team1.players]);
+                        setListPlayersAvailable2([...listPlayersAvailable2.filter(p => p.id === ""), ..._team2.players]);
+                        service.createNotification('success', tnotif('success.sellTeamPlayers'));
+                        setIsSending(false);
+                      })
+                      .catch(e => {
+                        service.createNotification('error', `${e.code}: ${e?.response?.data?.detail}`);
+                        setIsSending(false);
+                      });
+                  },
+                  onNo: () => {
+                    setIsSending(false);
+                  },
+                  onClickOutside: () => {
+                    setIsSending(false);
+                  },
+                  onKeypressEscape: () => {
+                    setIsSending(false);
+                  }
+                })
             }}
           >
             {({ values, handleSubmit, handleChange, errors, touched, setFieldValue, setErrors }) => (
@@ -199,7 +213,7 @@ const TeamSell = ({ }) => {
                     <Row>
                       {/* Select team 1 */}
                       <Form.Group className="mb-6">
-                        <Form.Label>Select a team</Form.Label>
+                        <Form.Label>{tteam('sell.form.group.idTeam1.label')}</Form.Label>
                         <Form.Control
                           disabled={isSending}
                           name="idTeam1"
@@ -208,7 +222,7 @@ const TeamSell = ({ }) => {
                             const value = e.target.value;
                             if (values.playersToSell1.length) {
                               service.confirmAlert(
-                                "The form contains players, confirm to change ?",
+                                tteam('sell.confirmAlert.confirmChange.title'), tteam('sell.confirmAlert.confirmChange.message'),
                                 {
                                   onYes: () => {
                                     setFieldValue("idTeam1", value);
@@ -244,7 +258,7 @@ const TeamSell = ({ }) => {
                     <Row>
                       {/* Select team 2 */}
                       <Form.Group className="mb-6">
-                        <Form.Label>Select a team</Form.Label>
+                        <Form.Label>{tteam('sell.form.group.idTeam2.label')}</Form.Label>
                         <Form.Control
                           disabled={isSending}
                           name="idTeam2"
@@ -253,7 +267,7 @@ const TeamSell = ({ }) => {
                             const value = e.target.value;
                             if (values.playersToSell2.length) {
                               service.confirmAlert(
-                                "The form contains players, confirm to change ?",
+                                tteam('sell.confirmAlert.confirmChange.title'), tteam('sell.confirmAlert.confirmChange.message'),
                                 {
                                   onYes: () => {
                                     setFieldValue("idTeam2", value);
@@ -323,7 +337,7 @@ const TeamSell = ({ }) => {
                     type="submit"
                     variant="info"
                     onClick={handleSubmit}
-                  >💵⚽ Proceed sells ⚽💵</Button>
+                  >💵⚽ {tteam('sell.form.input.submit.label')} ⚽💵</Button>
                 </Row>
               </Form>
             )}

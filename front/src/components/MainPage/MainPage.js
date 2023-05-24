@@ -2,16 +2,20 @@ import { service } from '../..';
 import { useEffect, useState } from "react";
 import styles from './MainPage.module.css';
 import PaginationTable from "../PaginationTable/PaginationTable";
-
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 
 const MainPage = ({ }) => {
+  const translator = { main: useTranslation('main'), notif: useTranslation('notification') };
+  const tmain = translator.main.t;
+  const tnotif = translator.notif.t;
   const [listTeam, setListTeam] = useState([]);
 
   useEffect(() => {
-    service.createNotification('info', 'Fetching teams list...');
+    service.createNotification('info', tnotif('info.fetchTeams'));
     service.team.getListTeam()
       .then(r => {
-        service.createNotification('success', 'Retrieved all teams');
+        service.createNotification('success', tnotif('success.fetchTeams'));
         const _listTeam = [];
         for (const team of r.data) {
           const _team = { ...team, "country": team.country.name, "totalPlayers": team.players.length };

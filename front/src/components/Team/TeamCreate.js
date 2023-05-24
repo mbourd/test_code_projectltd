@@ -6,9 +6,14 @@ import { createRef, useContext, useEffect, useState } from "react";
 import { service } from "../..";
 import Player from '../Player/Player';
 import 'react-confirm-alert/src/react-confirm-alert.css';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 
 const TeamCreate = () => {
-  const [listCountry, setListCountry] = useState([{ id: "", name: "-- Choose --" }]);
+  const translator = { team: useTranslation('team'), notif: useTranslation('notification') };
+  const tteam = translator.team.t;
+  const tnotif = translator.notif.t;
+  const [listCountry, setListCountry] = useState([{ id: "", name: tteam('create.form.input.select.defaultOptionLabel') }]);
   const [input1HasError, setInput1HasError] = useState(false);
   const [input2HasError, setInput2HasError] = useState(false);
   const [isSending, setIsSending] = useState(false);
@@ -18,7 +23,7 @@ const TeamCreate = () => {
   useEffect(() => {
     service.country.getListCountry()
       .then(r => {
-        setListCountry([{ id: "", name: "-- Choose --" }, ...r.data]);
+        setListCountry([{ id: "", name: tteam('create.form.input.select.defaultOptionLabel') }, ...r.data]);
       })
       .catch(e => {
         service.createNotification('error', `${e.code}: ${e?.response?.data?.detail}`);
@@ -39,7 +44,7 @@ const TeamCreate = () => {
     service.team.createTeam(team)
       .then(r => {
         resetForm();
-        service.createNotification('success', 'New team created ! 🏆 ');
+        service.createNotification('success', tnotif('success.createTeam'));
         setIsSending(false);
       })
       .catch(e => {
@@ -51,7 +56,7 @@ const TeamCreate = () => {
   return (
     <div className={styles['TeamCreate-component']}>
       <Row>
-        <Col><h3>Creating Team</h3></Col>
+        <Col><h3>{tteam('create.title')}</h3></Col>
       </Row>
       <Row>
         <div className="">
@@ -66,12 +71,12 @@ const TeamCreate = () => {
               playerSurname: "",
             }}
             validationSchema={() => Yup.object().shape({
-              name: Yup.string().required("Enter the team name"),
-              country: Yup.string().required("Choose the country for the team"),
-              moneyBalance: Yup.number().positive().min(0).required("Enter the money balance for the team"),
+              name: Yup.string().required(tteam('create.form.validationSchema.name')),
+              country: Yup.string().required(tteam('create.form.validationSchema.country')),
+              moneyBalance: Yup.number().positive().min(0).required(tteam('create.form.validationSchema.moneyBalance')),
               players: Yup.array().of(Yup.object().shape({
-                name: Yup.string().required("Enter the name of the player"),
-                surname: Yup.string().required("Enter the surname of the player"),
+                name: Yup.string().required(tteam('create.form.validationSchema.players.name')),
+                surname: Yup.string().required(tteam('create.form.validationSchema.players.surname')),
               })),
               playerName: Yup.string(),
               playerSurname: Yup.string(),
@@ -79,10 +84,10 @@ const TeamCreate = () => {
             onSubmit={(values, { resetForm }) => {
               const _dataToSend = { ...values };
               if (input1HasError) {
-                service.createNotification('error', 'Player name is missing, then add the new player');
+                service.createNotification('error', tnotif('error.createTeamMissingName'));
               }
               if (input2HasError) {
-                service.createNotification('error', 'Player surnname is missing, then add the new player');
+                service.createNotification('error', tnotif('error.createTeamMissingSurname'));
               }
               if (input1HasError || input2HasError) return;
 
@@ -90,21 +95,23 @@ const TeamCreate = () => {
               delete _dataToSend.playerSurname;
 
               setIsSending(true);
-              service.confirmAlert('Confirm the action ?', {
-                onYes: () => {
-                  service.createNotification('info', 'Sending data...');
-                  submitForm(_dataToSend, resetForm);
-                },
-                onNo: () => {
-                  setIsSending(false);
-                },
-                onClickOutside: () => {
-                  setIsSending(false);
-                },
-                onKeypressEscape: () => {
-                  setIsSending(false);
-                }
-              });
+              service.confirmAlert(
+                tteam('create.confirmAlert.confirmCreate.title'), tteam('create.confirmAlert.confirmCreate.message'),
+                {
+                  onYes: () => {
+                    service.createNotification('info', tnotif('info.sendingData'));
+                    submitForm(_dataToSend, resetForm);
+                  },
+                  onNo: () => {
+                    setIsSending(false);
+                  },
+                  onClickOutside: () => {
+                    setIsSending(false);
+                  },
+                  onKeypressEscape: () => {
+                    setIsSending(false);
+                  }
+                });
             }}
           >
             {({ values, handleSubmit, handleChange, errors, touched, setFieldValue, setErrors }) => (
@@ -115,7 +122,7 @@ const TeamCreate = () => {
                     <Row>
                       {/* Input team name */}
                       <Form.Group className="mb-6">
-                        <Form.Label>Team name</Form.Label>
+                        <Form.Label>{tteam('create.form.group.name.label')}</Form.Label>
                         <Form.Control
                           disabled={isSending}
                           name="name"
@@ -138,7 +145,7 @@ const TeamCreate = () => {
                     <Row>
                       {/* Input money balance */}
                       <Form.Group className="mb-6">
-                        <Form.Label>Money balance</Form.Label>
+                        <Form.Label>{tteam('create.form.group.moneyBalance.label')}</Form.Label>
                         <Form.Control
                           disabled={isSending}
                           name="moneyBalance"
@@ -163,7 +170,7 @@ const TeamCreate = () => {
                     <Row>
                       {/* Input list country */}
                       <Form.Group className="mb-3" controlId="country">
-                        <Form.Label>Country</Form.Label>
+                        <Form.Label>{tteam('create.form.group.country.label')}</Form.Label>
                         <Form.Control
                           disabled={isSending}
                           name="country"
@@ -188,12 +195,12 @@ const TeamCreate = () => {
                     </Row>
                   </Col>
                   <Col className={styles['col-form']}>
-                    <Row><Col md={12}><h5>Add a player</h5></Col></Row>
+                    <Row><Col md={12}><h5>{tteam('create.form.group.player.label')}</h5></Col></Row>
                     <Row>
                       <Col>
                         {/* Input player name */}
                         <Form.Group className="mb-6">
-                          <Form.Label>Name</Form.Label>
+                          <Form.Label>{tteam('create.form.group.player.name.label')}</Form.Label>
                           <Form.Control
                             disabled={isSending}
                             name="playerName"
@@ -228,7 +235,7 @@ const TeamCreate = () => {
                       <Col>
                         {/* Input player surname */}
                         <Form.Group className="mb-6">
-                          <Form.Label>Surname</Form.Label>
+                          <Form.Label>{tteam('create.form.group.player.surname.label')}</Form.Label>
                           <Form.Control
                             disabled={isSending}
                             name="playerSurname"
@@ -267,13 +274,13 @@ const TeamCreate = () => {
                             disabled={input1HasError || input2HasError || (values.playerSurname === "" && values.playerName === "") || isSending}
                             type="button"
                             variant="success"
-                            value={'Add 🏅'}
+                            value={tteam('create.form.group.player.button.add')}
                             onClick={() => {
                               if (input1HasError) {
-                                service.createNotification('error', 'Player name is missing, then add or delete');
+                                service.createNotification('error', tnotif('error.createTeamMissingName'));
                               }
                               if (input2HasError) {
-                                service.createNotification('error', 'Player surnname is missing, then add or delete');
+                                service.createNotification('error', tnotif('error.createTeamMissingSurname'));
                               }
                               if (values.playerSurname !== "" && values.playerName !== "") {
                                 const _players = [...values.players, { name: values.playerName, surname: values.playerSurname }];
@@ -313,7 +320,7 @@ const TeamCreate = () => {
                     type="submit"
                     variant="info"
                     onClick={handleSubmit}
-                  >🏆⚽ Create the new team ⚽🏆</Button>
+                  >🏆⚽ {tteam('create.form.input.submit.label')} ⚽🏆</Button>
                 </Row>
               </Form>
             )}

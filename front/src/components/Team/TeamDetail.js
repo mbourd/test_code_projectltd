@@ -5,8 +5,13 @@ import { useLocation, useParams } from 'react-router';
 import { useContext, useEffect, useState } from 'react';
 import Player from '../Player/Player';
 import AnimatedNumber from "animated-number-react";
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 
 const TeamDetail = ({ }) => {
+  const translator = { team: useTranslation('team'), notif: useTranslation('notification') };
+  const tteam = translator.team.t;
+  const tnotif = translator.notif.t;
   const { id } = useParams();
   const location = useLocation();
   const [team, setTeam] = useState({});
@@ -40,7 +45,7 @@ const TeamDetail = ({ }) => {
                 className={styles['li-item'] + " d-flex justify-content-between align-items-start"}
               >
                 <div className="ms-2 me-auto">
-                  <div className="fw-bold">Total players ⚽</div>
+                  <div className="fw-bold">{tteam('detail.totalPlayers')} ⚽</div>
                 </div>
                 <Badge bg="primary" pill>
                   <AnimatedNumber value={players.length}
@@ -52,7 +57,7 @@ const TeamDetail = ({ }) => {
                 className={styles['li-item'] + " d-flex justify-content-between align-items-start"}
               >
                 <div className="ms-2 me-auto">
-                  <div className="fw-bold">Money balance 📈</div>
+                  <div className="fw-bold">{tteam('detail.moneyBalance')} 📈</div>
                 </div>
                 <Badge bg="primary" pill>
                   <AnimatedNumber value={team.moneyBalance}
@@ -64,7 +69,7 @@ const TeamDetail = ({ }) => {
                 className={styles['li-item'] + " d-flex justify-content-between align-items-start"}
               >
                 <div className="ms-2 me-auto">
-                  <div className="fw-bold">Country 🌎</div>
+                  <div className="fw-bold">{tteam('detail.country')} 🌎</div>
                   {team.country}
                 </div>
               </ListGroup.Item>
@@ -72,7 +77,7 @@ const TeamDetail = ({ }) => {
           </Row>
         </Col>
         <Col>
-          <Row><h3>Team players</h3></Row>
+          <Row><h3>{ tteam('detail.colListPlayers')}</h3></Row>
           <Row>
             {players.map((player, i) => {
               return <Player key={'player-' + player.id} player={player} />

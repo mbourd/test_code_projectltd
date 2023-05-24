@@ -3,8 +3,11 @@ import { useTable, useFilters, useGlobalFilter, useAsyncDebounce, usePagination,
 import { Link, useNavigate } from "react-router-dom";
 import styles from './PaginationTable.module.css';
 import AnimatedNumber from "animated-number-react";
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 
 function Table({ columns, data, sizePagination, atPage }) {
+  const { t } = useTranslation('paginationTable');
   const defaultColumn = React.useMemo(
     () => ({
       Filter: ColumnFilter,
@@ -88,7 +91,7 @@ function Table({ columns, data, sizePagination, atPage }) {
             return (
               <tr {...row.getRowProps()}>
                 {row.cells.map(cell => {
-                  if (cell.column.Header === 'Detail') {
+                  if (cell.column.Header === t('colDetail.label')) {
                     return <td {...cell.getCellProps()}>
                       {!cell.row.id.includes('.') &&
                         <Link to={"/team/show/" + cell.row.original.id} state={cell.row.original}>🔎</Link>
@@ -96,7 +99,7 @@ function Table({ columns, data, sizePagination, atPage }) {
                     </td>
                   }
 
-                  if (cell.column.Header === 'Money balance') {
+                  if (cell.column.Header === t('colMoneyBalance.label')) {
                     return <td {...cell.getCellProps()}>
                       <AnimatedNumber
                         value={cell.render('Cell').props.cell.row.original[cell.render('Cell').props.cell.column.id]}
@@ -105,7 +108,7 @@ function Table({ columns, data, sizePagination, atPage }) {
                     </td>
                   }
 
-                  if (cell.column.Header === 'Total players') {
+                  if (cell.column.Header === t('colTotalPlayers.label')) {
                     return <td {...cell.getCellProps()}>
                       <AnimatedNumber
                         value={cell.render('Cell').props.cell.row.original[cell.render('Cell').props.cell.column.id]}
@@ -126,22 +129,22 @@ function Table({ columns, data, sizePagination, atPage }) {
       */}
       <ul className={styles.pagination + ' pagination'}>
         <li className="page-item" onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
-          <a className="page-link">First</a>
+          <a className="page-link">{t('paginate.first')}</a>
         </li>
         <li className="page-item" onClick={() => previousPage()} disabled={!canPreviousPage}>
-          <a className="page-link">{'<'}</a>
+          <a className="page-link">{t('paginate.prev')}</a>
         </li>
         <li className="page-item" onClick={() => nextPage()} disabled={!canNextPage}>
-          <a className="page-link">{'>'}</a>
+          <a className="page-link">{t('paginate.next')}</a>
         </li>
         <li className="page-item" onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage}>
-          <a className="page-link">Last</a>
+          <a className="page-link">{t('paginate.last')}</a>
         </li>
         <li>
           <a className="page-link">
-            Page{' '}
+            {t('paginate.currentPage.1') + ' '}
             <strong>
-              {pageIndex + 1} of {pageOptions.length}
+              {pageIndex + 1} {t('paginate.currentPage.2')} {pageOptions.length}
             </strong>{' '}
           </a>
         </li>
@@ -169,7 +172,7 @@ function Table({ columns, data, sizePagination, atPage }) {
         >
           {[5, 10, 20, 30, 40, 50].map(pageSize => (
             <option key={pageSize} value={pageSize}>
-              Show {pageSize}
+              {t('paginate.showSize')} {pageSize}
             </option>
           ))}
         </select>
@@ -181,25 +184,27 @@ function Table({ columns, data, sizePagination, atPage }) {
 function PaginationTable({
   data, sizePagination, atPage
 }) {
+  const translator = { paginationTable: useTranslation('paginationTable') };
+  const tpaginationTable = translator.paginationTable.t;
   const columns = useMemo(
     () => [
       {
-        Header: 'Teams overview',
+        Header: tpaginationTable('tableLabel'),
         columns: [
           {
-            Header: 'Team name',
+            Header: tpaginationTable('colTeamName.label'),
             accessor: 'name',
           },
           {
-            Header: 'Country',
+            Header: tpaginationTable('colCountry.label'),
             accessor: 'country',
           },
           {
-            Header: 'Money balance',
+            Header: tpaginationTable('colMoneyBalance.label'),
             accessor: 'moneyBalance',
           },
           {
-            Header: 'Total players',
+            Header: tpaginationTable('colTotalPlayers.label'),
             accessor: 'totalPlayers',
           },
           // {
@@ -207,7 +212,7 @@ function PaginationTable({
           //   accessor: 'players',
           // },
           {
-            Header: 'Detail',
+            Header: tpaginationTable('colDetail.label'),
             accessor: 'detail',
           },
         ],
@@ -226,6 +231,7 @@ function GlobalFilter({
   globalFilter,
   setGlobalFilter,
 }) {
+  const { t } = useTranslation('paginationTable');
   const count = preGlobalFilteredRows.length
   const [value, setValue] = useState(globalFilter)
   const onChange = useAsyncDebounce(value => {
@@ -234,7 +240,7 @@ function GlobalFilter({
 
   return (
     <span>
-      <h3>Search:{' '}</h3>
+      <h3>{t('searchBar.label')}</h3>
       <input
         className={styles.searchBar + " form-control"}
         value={value || ""}
@@ -242,7 +248,7 @@ function GlobalFilter({
           setValue(e.target.value);
           onChange(e.target.value);
         }}
-        placeholder={`${count} records...`}
+        placeholder={t('searchBar.placeHolderFilter').replace('{{count}}', count)}
       />
     </span>
   )

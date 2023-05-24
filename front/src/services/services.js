@@ -26,7 +26,7 @@ export class services {
     }
   }
 
-  confirmAlert(message = "", callbacks = {}, className = "overlay-custom-class-name") {
+  confirmAlert(title = "", message = "", callbacks = {}, className = "overlay-custom-class-name") {
     const _callbacks = {
       onYes: () => { }, onNo: () => { },
       willUnmount: () => { },
@@ -37,7 +37,7 @@ export class services {
       ...callbacks
     };
     confirmAlert({
-      title: 'Confirm',
+      title,
       message: message,
       buttons: [
         {

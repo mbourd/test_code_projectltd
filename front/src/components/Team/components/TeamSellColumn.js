@@ -1,10 +1,10 @@
 import { Col, Row, Button, Form, Card, Badge, ListGroup, Popover, OverlayTrigger } from "react-bootstrap";
 import styles from '../Team.module.css';
-import { createRef, useContext, useEffect, useState, Fragment } from "react";
-import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 import AnimatedNumber from "animated-number-react";
 import Player from "../../Player/Player";
+import { useTranslation } from 'react-i18next';
+import i18n from "../../../i18n";
 
 const TeamSellColumn = ({
   resultIncome = 0,
@@ -21,6 +21,10 @@ const TeamSellColumn = ({
   playersToSell = [],
   numCol = 1
 }) => {
+  const translator = { team: useTranslation('team'), notif: useTranslation('notification') };
+  const tteam = translator.team.t;
+  const tnotif = translator.notif.t;
+
   return (
     <Col className={styles.col}>
       {teamObjectRemovedListTeam &&
@@ -34,7 +38,7 @@ const TeamSellColumn = ({
                   className={styles['li-item'] + " d-flex justify-content-between align-items-start"}
                 >
                   <div className="ms-2 me-auto">
-                    <div className="fw-bold">Money balance 📈</div>
+                    <div className="fw-bold">{tteam('detail.moneyBalance')} 📈</div>
                   </div>
                   <Badge bg="primary" pill>
                     <AnimatedNumber
@@ -54,7 +58,7 @@ const TeamSellColumn = ({
                   className={styles['li-item'] + " d-flex justify-content-between align-items-start"}
                 >
                   <div className="ms-2 me-auto">
-                    <div className="fw-bold">Result income 💰</div>
+                    <div className="fw-bold">{tteam('sell.resultIncome')} 💰</div>
                   </div>
                   <Badge bg={resultIncome < 0 ? "danger" : (resultIncome > 0 ? "success" : "warning")} pill>
                     <AnimatedNumber
@@ -74,7 +78,7 @@ const TeamSellColumn = ({
                   className={styles['li-item'] + " d-flex justify-content-between align-items-start"}
                 >
                   <div className="ms-2 me-auto">
-                    <div className="fw-bold">Result balance 📈</div>
+                    <div className="fw-bold">{tteam('sell.resultBalance')} 📈</div>
                   </div>
                   <Badge bg={resultBalance < 0 ? "danger" : (resultBalance > 0 ? "success" : "warning")} pill>
                     <AnimatedNumber
@@ -94,7 +98,7 @@ const TeamSellColumn = ({
                   className={styles['li-item'] + " d-flex justify-content-between align-items-start"}
                 >
                   <div className="ms-2 me-auto">
-                    <div className="fw-bold">Total players to sell</div>
+                    <div className="fw-bold">{tteam('sell.totalPlayersToSell')}</div>
                   </div>
                   <Badge bg={"primary"} pill>
                     <AnimatedNumber
@@ -110,7 +114,7 @@ const TeamSellColumn = ({
             <Col>
               {/* Input list players available 1  */}
               <Form.Group className="mb-3" controlId="country">
-                <Form.Label>Players available</Form.Label>
+                <Form.Label>{tteam('sell.form.group.playerToSell.label')}</Form.Label>
                 <Form.Control
                   disabled={isSending}
                   name={"playerToSell" + numCol}
@@ -136,7 +140,7 @@ const TeamSellColumn = ({
             <Col>
               {/* Input price 1 */}
               <Form.Group className="mb-6">
-                <Form.Label>Price</Form.Label>
+              <Form.Label>{ tteam('sell.form.group.price.label')}</Form.Label>
                 <Form.Control
                   disabled={isSending}
                   name={"price" + numCol}
@@ -161,7 +165,7 @@ const TeamSellColumn = ({
                   disabled={values['playerToSell' + numCol] === "" || isSending}
                   type="button"
                   variant="success"
-                  value={'Add ✔️'}
+                  value={tteam('sell.form.group.buttonAdd')}
                   onClick={() => {
                     if (values['playerToSell' + numCol] !== "") {
                       const _player = { ...listPlayersAvailable.find(p => p.id === parseInt(values['playerToSell' + numCol])), price: parseFloat(values['price' + numCol]) };
