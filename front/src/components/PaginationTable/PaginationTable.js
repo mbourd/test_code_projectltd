@@ -80,7 +80,6 @@ function Table({ columns, data, sizePagination, atPage }) {
               <tr {...headerGroup.getHeaderGroupProps()} key={"searchCol-" + i}>
                 {headerGroup.headers.map((column, i) => (
                   <td {...column.getHeaderProps()} key={'searchCol-td-' + i}>
-                    {console.log(column)}
                     {/* Render the columns filter UI */}
                     <div>{column.canFilter ? column.render('Filter') : null}</div>
                   </td>
