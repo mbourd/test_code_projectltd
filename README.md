@@ -15,7 +15,7 @@ What we need in our app:
 
 I developed on WSL Linux Ubuntu 20.04 on a virtual machine.
 
-- Install Docker && Docker
+- Install Docker && Docker compose
 - `chmod 755 ./install-docker.sh`
 - `chmod 755 ./install-docker-compose.sh`
 
