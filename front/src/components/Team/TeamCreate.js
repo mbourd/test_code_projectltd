@@ -40,7 +40,6 @@ const TeamCreate = () => {
   }
 
   const submitForm = (team, resetForm) => {
-    console.log(team);
     service.team.createTeam(team)
       .then(r => {
         resetForm();

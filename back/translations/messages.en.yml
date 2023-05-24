@@ -1,0 +1,16 @@
+controller:
+  team:
+    getTeam:
+      teamNotFound: "Team id {{id}} not found"
+    createTeam:
+      countryIdNull: "Country id is null"
+      countryNotFound: "Country id {{id}} not found"
+    proceedSells:
+      idTeam1Null: "Team 1 id is null"
+      idTeam2Null: "Team 2 id is null"
+      teamNotFound: "Team id {{id}} not found"
+      playersToSellMissing: "Missing data: playersToSell1 or playersToSell2"
+      playersToSell1NotArray: "playersToSell1 must be an array"
+      playersToSell2NotArray: "playersToSell2 must be an array"
+      balanceNegative: "Impossible to proceed sells: {{teamName}} result balance is negative"
+      sameTeamNotAllowed: "Same team not allowed"

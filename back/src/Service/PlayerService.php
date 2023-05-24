@@ -4,7 +4,7 @@ namespace App\Service;
 
 use App\Entity\{Player};
 use App\Repository\PlayerRepository;
-use Doctrine\ORM\{EntityManagerInterface, EntityNotFoundException};
+use Doctrine\ORM\{EntityManagerInterface};
 
 class PlayerService
 {
@@ -25,17 +25,12 @@ class PlayerService
     }
 
     /**
-     * @throws EntityNotFoundException
      * @param int $id
      * @return Player
      */
     public function getById(int $id): Player
     {
         $entity = $this->repo->find($id);
-
-        if (is_null($entity)) {
-            throw new EntityNotFoundException("Player id $id not found");
-        }
 
         return $entity;
     }

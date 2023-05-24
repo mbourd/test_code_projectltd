@@ -4,7 +4,7 @@ namespace App\Service;
 
 use App\Entity\{Country};
 use App\Repository\CountryRepository;
-use Doctrine\ORM\{EntityManagerInterface, EntityNotFoundException};
+use Doctrine\ORM\{EntityManagerInterface};
 
 class CountryService
 {
@@ -30,17 +30,12 @@ class CountryService
     }
 
     /**
-     * @throws EntityNotFoundException
      * @param int $id
      * @return Country
      */
     public function getById(int $id): Country
     {
         $entity = $this->repo->find($id);
-
-        if (is_null($entity)) {
-            throw new EntityNotFoundException("Country id $id not found");
-        }
 
         return $entity;
     }

@@ -5,7 +5,7 @@ namespace App\Service;
 use App\Entity\{Team, Player};
 use App\Repository\CountryRepository;
 use App\Repository\TeamRepository;
-use Doctrine\ORM\{EntityManagerInterface, EntityNotFoundException};
+use Doctrine\ORM\{EntityManagerInterface};
 
 class TeamService
 {
@@ -43,7 +43,6 @@ class TeamService
     }
 
     /**
-     * @throws EntityNotFoundException
      * @param int $id
      * @return Team
      */
@@ -51,15 +50,10 @@ class TeamService
     {
         $entity = $this->repo->find($id);
 
-        if (is_null($entity)) {
-            throw new EntityNotFoundException("Team id $id not found");
-        }
-
         return $entity;
     }
 
     /**
-     * @throws EntityNotFoundException
      * @param array $data
      * @return Team
      */
@@ -76,7 +70,6 @@ class TeamService
             $player = new Player();
             $player->setName($dataPlayer['name']);
             $player->setSurname($dataPlayer['surname']);
-            $player->setTeam($team);
             $team->addPlayer($player);
         }
 
@@ -86,16 +79,11 @@ class TeamService
     }
 
     /**
-     * @throws EntityNotFoundException
      * @param int $id
      */
     public function deleteTeam(int $id): void
     {
         $team = $this->repo->find($id);
-
-        if (is_null($team)) {
-            throw new EntityNotFoundException("Team id $id not found");
-        }
 
         $this->repo->remove($team, true);
     }

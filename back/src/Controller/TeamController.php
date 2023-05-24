@@ -2,13 +2,11 @@
 
 namespace App\Controller;
 
-use App\Entity\Player;
 use App\Entity\Team;
 use App\Form\PlayerType;
 use App\Form\TeamType;
 use App\Service\CountryService;
 use App\Service\TeamService;
-use Doctrine\Common\Collections\ArrayCollection;
 use FOS\RestBundle\Controller\{
     Annotations as Rest,
     AbstractFOSRestController
@@ -17,6 +15,7 @@ use Psr\Log\LoggerInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Class TeamController
@@ -50,15 +49,28 @@ class TeamController extends AbstractFOSRestController
      *
      * @throws EntityNotFoundException
      * @param int $idTeam
+     * @param Request $request
      * @param TeamService $teamService
+     * @param TranslatorInterface $translator
      * @param LoggerInterface $logger
      *
      * @return Team
      */
-    public function getTeam(int $idTeam, TeamService $teamService, LoggerInterface $logger): Team
+    public function getTeam(int $idTeam, Request $request, TeamService $teamService, TranslatorInterface $translator, LoggerInterface $logger): Team
     {
         try {
-            return $teamService->getById($idTeam);
+            // Get the language
+            $lng = $request->headers->get('lng');
+
+            $entity = $teamService->getById($idTeam);
+
+            if (is_null($entity)) {
+                throw new EntityNotFoundException($translator->trans("controller.team.getTeam.teamNotFound", [
+                    "{{id}}" => $$idTeam
+                ], 'messages', $lng));
+            }
+
+            return $entity;
         } catch (EntityNotFoundException $e) {
             $logger->error($e->getMessage(), $e->getTrace());
             throw $e;
@@ -71,21 +83,31 @@ class TeamController extends AbstractFOSRestController
      * @throws Exception
      * @param Request $request
      * @param TeamService $teamService
+     * @param TranslatorInterface $translator
      * @param LoggerInterface $logger
      *
      * @return Team
      */
-    public function createTeam(Request $request, TeamService $teamService, CountryService $countryService, LoggerInterface $logger)
+    public function createTeam(Request $request, TeamService $teamService, CountryService $countryService, TranslatorInterface $translator, LoggerInterface $logger): Team
     {
         try {
+            // Get the language
+            $lng = $request->headers->get('lng');
+
             // Retrieve data
             $data = json_decode($request->getContent(), true);
 
             if (!isset($data['country']) || is_null($data['country'])) {
-                throw new EntityNotFoundException("Country id is null");
+                throw new EntityNotFoundException($translator->trans('controller.team.createTeam.countryIdNull', [], 'messages', $lng));
             }
 
             $country = $countryService->getById($data['country']);
+
+            if (is_null($country)) {
+                throw new EntityNotFoundException($translator->trans("controller.team.createTeam.countryNotFound", [
+                    "{{id}}" => $data['country']
+                ], 'messages', $lng));
+            }
 
             foreach ($data['players'] as $player) {
                 $_player = array_merge([], $player);
@@ -116,37 +138,55 @@ class TeamController extends AbstractFOSRestController
      * @throws Exception
      * @param Request $request
      * @param TeamService $teamService
+     * @param TranslatorInterface $translator
      * @param LoggerInterface $logger
      *
      * @return Team
      */
-    public function proceedSells(Request $request, TeamService $teamService, LoggerInterface $logger): array
+    public function proceedSells(Request $request, TeamService $teamService, TranslatorInterface $translator, LoggerInterface $logger): array
     {
         try {
+            // Get the language
+            $lng = $request->headers->get('lng');
+
             // Retrieve data
             $data = json_decode($request->getContent(), true);
 
             // Check if keys exists
             if (!isset($data['idTeam1']) || is_null($data['idTeam1'])) {
-                throw new EntityNotFoundException("Team 1 id is null");
+                throw new EntityNotFoundException($translator->trans("controller.team.proceedSells.idTeam1Null", [], 'messages', $lng));
             }
             if (!isset($data['idTeam2']) || is_null($data['idTeam2'])) {
-                throw new EntityNotFoundException("Team 2 id is null");
+                throw new EntityNotFoundException($translator->trans("controller.team.proceedSells.idTeam2Null", [], 'messages', $lng));
             }
             if (!isset($data['playersToSell1']) || !isset($data['playersToSell2'])) {
-                throw new Exception("Missing data: playersToSell1 or playersToSell2");
+                throw new Exception($translator->trans("controller.team.proceedSells.playersToSellMissing", [], 'messages', $lng));
             }
             if (!is_array($data['playersToSell1'])) {
-                throw new Exception("playersToSell1 must be an array");
+                throw new Exception($translator->trans("controller.team.proceedSells.playersToSell1NotArray", [], 'messages', $lng));
             }
             if (!is_array($data['playersToSell2'])) {
-                throw new Exception("playersToSell2 must be an array");
+                throw new Exception($translator->trans("controller.team.proceedSells.playersToSell2NotArray", [], 'messages', $lng));
             }
 
             $idTeam1 = $data['idTeam1'];
             $idTeam2 = $data['idTeam2'];
             $team1 = $teamService->getById($idTeam1);
             $team2 = $teamService->getById($idTeam2);
+
+            if (is_null($team1)) {
+                throw new EntityNotFoundException($translator->trans("controller.team.proceedSells.teamNotFound", [
+                    "{{id}}" => $data['idTeam1']
+                ], 'messages', $lng));
+            }
+            if (is_null($team2)) {
+                throw new EntityNotFoundException($translator->trans("controller.team.proceedSells.teamNotFound", [
+                    "{{id}}" => $data['idTeam2']
+                ], 'messages', $lng));
+            }
+            if ($team1->getId() === $team2->getId()) {
+                throw new Exception($translator->trans("controller.team.proceedSells.sameTeamNotAllowed", [], 'messages', $lng));
+            }
 
             // Check type for every player
             foreach ([$data['playersToSell1'], $data['playersToSell2']] as $playersToSell) {
@@ -179,10 +219,14 @@ class TeamController extends AbstractFOSRestController
             $data['newBalance2'] = $balance2;
 
             if ($balance1 < 0) {
-                throw new Exception("Impossible to proceed sells: {$team1->getName()} result balance is negative");
+                throw new Exception($translator->trans("controller.team.proceedSells.balanceNegative", [
+                    "{{teamName}}" => $team1->getName()
+                ], 'messages', $lng));
             }
             if ($balance2 < 0) {
-                throw new Exception("Impossible to proceed sells: {$team2->getName()} result balance is negative");
+                throw new Exception($translator->trans("controller.team.proceedSells.balanceNegative", [
+                    "{{teamName}}" => $team2->getName()
+                ], 'messages', $lng));
             }
 
             return $teamService->sellPlayersBetween($data, $team1, $team2);
