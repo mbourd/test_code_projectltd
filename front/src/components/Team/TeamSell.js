@@ -32,6 +32,8 @@ const TeamSell = ({ }) => {
   const [resultBalance1, setResultBalance1] = useState(0);
   const [resultBalance2, setResultBalance2] = useState(0);
 
+  // Get all teams from the backend
+  // and select the team 1 if exist already when navigating from TeamDetail
   useEffect(() => {
     service.team.getListTeam()
       .then(r => {
@@ -46,6 +48,11 @@ const TeamSell = ({ }) => {
       });
   }, []);
 
+  // When the state selectedIdTeam1 changes
+  // update the teams list (column 2) by removing the selceted team from the list
+  // save to put it back later
+  // update the list of available players (column 1)
+  // every time the chosen team (column 1) change, list of available plers become empty (column 1)
   useEffect(() => {
     const tmp = [...listTeams2];
 
@@ -69,6 +76,11 @@ const TeamSell = ({ }) => {
     refForm.current.setFieldValue('playersToSell1', []);
   }, [selectedIdTeam1]);
 
+  // When the state selectedIdTeam2 changes
+  // update the teams list (column 1) by removing the selected team from the list
+  // save the removed team to put it back later
+  // update the list of available players (column 2)
+  // every time the chosen team (column 2) change, list of available plers become empty (column 2)
   useEffect(() => {
     const tmp = [...listTeams1];
 
@@ -92,6 +104,7 @@ const TeamSell = ({ }) => {
     refForm.current.setFieldValue('playersToSell2', []);
   }, [selectedIdTeam2]);
 
+  // Calculate the result of sells
   useEffect(() => {
     const income1 = playersToSell1.reduce((income, player) => income + player.price, 0)
       - playersToSell2.reduce((invest, player) => invest + player.price, 0);
@@ -113,6 +126,8 @@ const TeamSell = ({ }) => {
         <div className="">
           <Formik
             innerRef={refForm}
+
+            // Initial values for each inputs
             initialValues={{
               idTeam1: location.state?.team?.id ? location.state.team.id : selectedIdTeam1,
               idTeam2: selectedIdTeam2,
@@ -123,6 +138,8 @@ const TeamSell = ({ }) => {
               price1: 0,
               price2: 0,
             }}
+
+            // Rules to validate inputs
             validationSchema={() => Yup.object().shape({
               idTeam1: Yup.string().required(tteam('sell.form.validationSchema.idTeam1')),
               idTeam2: Yup.string().required(tteam('sell.form.validationSchema.idTeam2')),
@@ -143,9 +160,12 @@ const TeamSell = ({ }) => {
                 })
               ),
             })}
+
+            // When submitting
             onSubmit={(values, { resetForm, setFieldValue }) => {
               const _values = { ...values, idTeam1: parseInt(values.idTeam1), idTeam2: parseInt(values.idTeam2) };
 
+              // Negative balance not allowed
               if (resultBalance1 < 0) {
                 service.createNotification("error", tnotif('error.sellTeamNegativeBalance').replace('{{teamName}}', teamObjectRemovedListTeam2.name));
                 return;
@@ -154,10 +174,12 @@ const TeamSell = ({ }) => {
                 service.createNotification("error", tnotif('error.sellTeamNegativeBalance').replace('{{teamName}}', teamObjectRemovedListTeam1.name));
                 return;
               }
+              // Same team not allowed
               if (_values.idTeam1 === _values.idTeam2) {
                 service.createNotification("error", tnotif('error.sellTeamSameNotAllowed'));
                 return;
               }
+              // Empty list players to sell not allowed
               if (_values.playersToSell1.length === 0 && _values.playersToSell2.length === 0) {
                 service.createNotification("error", tnotif('error.sellTeamNoPlayers'));
                 return;
@@ -169,6 +191,7 @@ const TeamSell = ({ }) => {
               delete _values.playerToSell2;
 
               setIsSending(true);
+              // show confirm modal
               service.confirmAlert(
                 tteam('sell.confirmAlert.confirmSell.title'), tteam('sell.confirmAlert.confirmSell.message'),
                 {
@@ -176,6 +199,8 @@ const TeamSell = ({ }) => {
                     service.createNotification('info', tnotif('info.sendingData'));
                     service.team.teamProceedSells(_values)
                       .then(r => {
+                        // Update the current team object, with the new list of players available
+                        // Empty players to sell of each column
                         const _team1 = { ...r.data[0] };
                         const _team2 = { ...r.data[1] };
                         const _listTeams1 = listTeams1.filter(t => t.id !== _team1.id);
@@ -230,6 +255,7 @@ const TeamSell = ({ }) => {
                           onChange={(e) => {
                             const value = e.target.value;
                             if (values.playersToSell1.length) {
+                              // Show a confirm modal if the user change the list with existing players to sell
                               service.confirmAlert(
                                 tteam('sell.confirmAlert.confirmChange.title'), tteam('sell.confirmAlert.confirmChange.message'),
                                 {
@@ -275,6 +301,7 @@ const TeamSell = ({ }) => {
                           onChange={(e) => {
                             const value = e.target.value;
                             if (values.playersToSell2.length) {
+                              // Show a confirm modal if the user change the list with existing players to sell
                               service.confirmAlert(
                                 tteam('sell.confirmAlert.confirmChange.title'), tteam('sell.confirmAlert.confirmChange.message'),
                                 {
@@ -309,6 +336,7 @@ const TeamSell = ({ }) => {
                   </Col>
                 </Row>
                 <Row>
+                  {/* Column 1 */}
                   <TeamSellColumn
                     resultIncome={resultIncome1}
                     resultBalance={resultBalance1}
@@ -324,6 +352,8 @@ const TeamSell = ({ }) => {
                     playersToSell={playersToSell1}
                     numCol={1}
                   />
+
+                  {/* Column 2 */}
                   <TeamSellColumn
                     resultIncome={resultIncome2}
                     resultBalance={resultBalance2}
@@ -340,6 +370,8 @@ const TeamSell = ({ }) => {
                     numCol={2}
                   />
                 </Row>
+
+                {/* Button to submit */}
                 <Row>
                   <Button
                     disabled={isSending}

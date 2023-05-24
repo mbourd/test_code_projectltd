@@ -31,6 +31,8 @@ const TeamSellColumn = ({
       {teamObjectRemovedListTeam &&
         <>
           <Row><Col><h2>{teamObjectRemovedListTeam.name}</h2></Col></Row>
+
+          {/* Money balance */}
           <Row>
             <Col>
               <ListGroup variant='flush'>
@@ -51,6 +53,8 @@ const TeamSellColumn = ({
               </ListGroup>
             </Col>
           </Row>
+
+          {/* Result income */}
           <Row>
             <Col>
               <ListGroup variant='flush'>
@@ -71,6 +75,8 @@ const TeamSellColumn = ({
               </ListGroup>
             </Col>
           </Row>
+
+          {/* Result money balance */}
           <Row>
             <Col>
               <ListGroup variant='flush'>
@@ -91,6 +97,8 @@ const TeamSellColumn = ({
               </ListGroup>
             </Col>
           </Row>
+
+          {/* Total players to sell */}
           <Row>
             <Col>
               <ListGroup variant='flush'>
@@ -159,7 +167,7 @@ const TeamSellColumn = ({
               </Form.Group>
             </Col>
             <Col>
-              {/* Add to sell button 1 */}
+              {/* Add to sell button */}
               <Form.Group className="mb-6">
                 <Form.Label>&nbsp;</Form.Label>
                 <Form.Control
@@ -168,10 +176,12 @@ const TeamSellColumn = ({
                   variant="success"
                   value={tteam('sell.form.group.buttonAdd')}
                   onClick={() => {
+                    // Negative price not allowed
                     if (values['price' + numCol] < 0) {
                       service.createNotification('error', tnotif('error.selltTeamNegativePrice'));
                       return;
                     }
+                    // Must select a player
                     if (values['playerToSell' + numCol] !== "") {
                       const _player = { ...listPlayersAvailable.find(p => p.id === parseInt(values['playerToSell' + numCol])), price: parseFloat(values['price' + numCol]) };
                       const _players = [...playersToSell, _player];
@@ -188,7 +198,7 @@ const TeamSellColumn = ({
           </Row>
           <hr />
           <Row>
-            {/* Players to sell 1 */}
+            {/* List of Players to sell */}
             {playersToSell.map((data, i) => {
               return (
                 <Row key={'playerToSell-' + data.id}>

@@ -107,6 +107,7 @@ class TeamController extends AbstractFOSRestController
             $data['country'] = intval($data['country']);
             $country = $countryService->getById($data['country']);
 
+            // Check if the Country exist
             if (is_null($country)) {
                 throw new EntityNotFoundException($translator->trans("controller.team.createTeam.countryNotFound", [
                     "{{id}}" => $data['country']
@@ -129,6 +130,7 @@ class TeamController extends AbstractFOSRestController
                 throw new Exception($form->getErrors(true, true)->__toString());
             }
 
+            // Create the team with its players
             return $teamService->createTeam($data);
         } catch (\Throwable $e) {
             $logger->error($e->getMessage(), $e->getTrace());
@@ -179,6 +181,7 @@ class TeamController extends AbstractFOSRestController
             $team1 = $teamService->getById($data['idTeam1']);
             $team2 = $teamService->getById($data['idTeam2']);
 
+            // Check if Team exists
             if (is_null($team1)) {
                 throw new EntityNotFoundException($translator->trans("controller.team.proceedSells.teamNotFound", [
                     "{{id}}" => $data['idTeam1']
@@ -189,6 +192,7 @@ class TeamController extends AbstractFOSRestController
                     "{{id}}" => $data['idTeam2']
                 ], 'messages', $lng));
             }
+            // Same Team not allowed
             if ($team1->getId() === $team2->getId()) {
                 throw new Exception($translator->trans("controller.team.proceedSells.sameTeamNotAllowed", [], 'messages', $lng));
             }
@@ -206,6 +210,7 @@ class TeamController extends AbstractFOSRestController
                             "{{id}}" => $_player['id']
                         ], 'messages', $lng));
                     }
+                    // Negative price not allowed
                     if ($_player['price'] < 0) {
                         throw new Exception($translator->trans("controller.team.proceedSells.playerNegativePrice", [], 'messages', $lng));
                     }
@@ -237,6 +242,7 @@ class TeamController extends AbstractFOSRestController
             $data['newBalance1'] = $balance1;
             $data['newBalance2'] = $balance2;
 
+            // Negative balance not allowed
             if ($balance1 < 0) {
                 throw new Exception($translator->trans("controller.team.proceedSells.balanceNegative", [
                     "{{teamName}}" => $team1->getName()
@@ -248,6 +254,7 @@ class TeamController extends AbstractFOSRestController
                 ], 'messages', $lng));
             }
 
+            // Proceed the players sell between the two teams
             return $teamService->sellPlayersBetween($data, $team1, $team2);
         } catch (\Throwable $e) {
             $logger->error($e->getMessage(), $e->getTrace());

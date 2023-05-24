@@ -16,7 +16,7 @@ const TeamCreate = () => {
   const [listCountry, setListCountry] = useState([{ id: "", name: tteam('create.form.input.select.defaultOptionLabel') }]);
   const [input1HasError, setInput1HasError] = useState(false);
   const [input2HasError, setInput2HasError] = useState(false);
-  const [isSending, setIsSending] = useState(false);
+  const [isSending, setIsSending] = useState(false); // used to disable inputs while sending
 
   const refForm = createRef();
 
@@ -61,6 +61,8 @@ const TeamCreate = () => {
         <div className="">
           <Formik
             innerRef={refForm}
+
+            // Initial values for each inputs
             initialValues={{
               name: "",
               country: "",
@@ -69,6 +71,8 @@ const TeamCreate = () => {
               playerName: "",
               playerSurname: "",
             }}
+
+            // Rules to validate inputs
             validationSchema={() => Yup.object().shape({
               name: Yup.string().required(tteam('create.form.validationSchema.name')),
               country: Yup.string().required(tteam('create.form.validationSchema.country')),
@@ -80,6 +84,8 @@ const TeamCreate = () => {
               playerName: Yup.string(),
               playerSurname: Yup.string(),
             })}
+
+            // When submitting
             onSubmit={(values, { resetForm }) => {
               const _dataToSend = { ...values, country: parseInt(values.country) };
 
@@ -95,6 +101,7 @@ const TeamCreate = () => {
               delete _dataToSend.playerSurname;
 
               setIsSending(true);
+              // show a confirm modal
               service.confirmAlert(
                 tteam('create.confirmAlert.confirmCreate.title'), tteam('create.confirmAlert.confirmCreate.message'),
                 {
@@ -142,8 +149,9 @@ const TeamCreate = () => {
                   </Col>
                   <Col className={styles['col-form']}>
                     <Row><Col md={12}><h5>&nbsp;</h5></Col></Row>
+
+                    {/* Input money balance */}
                     <Row>
-                      {/* Input money balance */}
                       <Form.Group className="mb-6">
                         <Form.Label>{tteam('create.form.group.moneyBalance.label')}</Form.Label>
                         <Form.Control
@@ -167,8 +175,9 @@ const TeamCreate = () => {
                 <Row>
                   <Col className={styles['col-form']}>
                     <Row><Col md={12}><h5>&nbsp;</h5></Col></Row>
+
+                    {/* Input list country */}
                     <Row>
-                      {/* Input list country */}
                       <Form.Group className="mb-3" controlId="country">
                         <Form.Label>{tteam('create.form.group.country.label')}</Form.Label>
                         <Form.Control
@@ -207,19 +216,22 @@ const TeamCreate = () => {
                             type="text"
                             placeholder=""
                             onChange={(e) => {
-                              setFieldValue("playerName", e.target.value);
+                              const value = e.target.value;
+                              setFieldValue("playerName", value);
 
-                              if (e.target.value !== "" && values.playerSurname === "") {
+                              // Check each name/surname values
+                              if (value !== "" && values.playerSurname === "") {
                                 setInput1HasError(false);
                                 setInput2HasError(true);
                               }
-                              if (e.target.value === "" && values.playerSurname !== "") {
+                              if (value === "" && values.playerSurname !== "") {
                                 setInput1HasError(true);
                                 setInput2HasError(false);
                               }
 
-                              if (e.target.value === "" && values.playerSurname === ""
-                                || e.target.value !== "" && values.playerSurname !== "") {
+                              // No in error name/surname inputs are empty or filled
+                              if (value === "" && values.playerSurname === ""
+                                || value !== "" && values.playerSurname !== "") {
                                 setInput1HasError(false);
                                 setInput2HasError(false);
                               }
@@ -242,19 +254,22 @@ const TeamCreate = () => {
                             type="text"
                             placeholder=""
                             onChange={(e) => {
-                              setFieldValue("playerSurname", e.target.value);
+                              const value = e.target.value;
+                              setFieldValue("playerSurname", value);
 
-                              if (values.playerName !== "" && e.target.value === "") {
+                              // Check each name/surname values
+                              if (values.playerName !== "" && value === "") {
                                 setInput1HasError(false);
                                 setInput2HasError(true);
                               }
-                              if (values.playerName === "" && e.target.value !== "") {
+                              if (values.playerName === "" && value !== "") {
                                 setInput1HasError(true);
                                 setInput2HasError(false);
                               }
 
-                              if (values.playerName === "" && e.target.value === ""
-                                || values.playerName !== "" && e.target.value !== "") {
+                              // No in error name/surname inputs are empty or filled
+                              if (values.playerName === "" && value === ""
+                                || values.playerName !== "" && value !== "") {
                                 setInput1HasError(false);
                                 setInput2HasError(false);
                               }
@@ -282,9 +297,11 @@ const TeamCreate = () => {
                               if (input2HasError) {
                                 service.createNotification('error', tnotif('error.createTeamMissingSurname'));
                               }
+                              // Must have a name & surname
+                              // Add the new player to the players list
                               if (values.playerSurname !== "" && values.playerName !== "") {
                                 const _players = [...values.players, { name: values.playerName, surname: values.playerSurname }];
-                                setFieldValue('players', [..._players])
+                                setFieldValue('players', [..._players]);
                                 setFieldValue("playerSurname", '');
                                 setFieldValue("playerName", '');
                               }
@@ -300,6 +317,7 @@ const TeamCreate = () => {
                   </Col>
                 </Row>
                 <hr />
+                {/* List of new players */}
                 <Row>
                   {values.players.map((player, index) => {
                     return (
@@ -314,6 +332,8 @@ const TeamCreate = () => {
                     );
                   })}
                 </Row>
+
+                {/* Button to submit */}
                 <Row>
                   <Button
                     disabled={isSending}

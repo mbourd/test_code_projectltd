@@ -26,6 +26,9 @@ class CountryService
         $this->repo = $this->manager->getRepository(Country::class);
     }
 
+    /**
+     * @return array
+     */
     public function getAll(): array
     {
         return $this->repo->findAll();

@@ -59,6 +59,7 @@ function Table({ columns, data, sizePagination, atPage }) {
         <thead>
           {headerGroups.map((headerGroup, i) => (
             <Fragment key={'headGroup-' + i}>
+              {/* Add a sort direction indicator */}
               <tr {...headerGroup.getHeaderGroupProps()} key={"sortCol-" + i}>
                 {headerGroup.headers.map(column => (
                   <th {...column.getHeaderProps(column.getSortByToggleProps())}>
@@ -74,9 +75,12 @@ function Table({ columns, data, sizePagination, atPage }) {
                   </th>
                 ))}
               </tr>
+
+              {/* Render the columns filter UI */}
               <tr {...headerGroup.getHeaderGroupProps()} key={"searchCol-" + i}>
                 {headerGroup.headers.map((column, i) => (
                   <td {...column.getHeaderProps()} key={'searchCol-td-' + i}>
+                    {console.log(column)}
                     {/* Render the columns filter UI */}
                     <div>{column.canFilter ? column.render('Filter') : null}</div>
                   </td>
@@ -124,9 +128,8 @@ function Table({ columns, data, sizePagination, atPage }) {
           })}
         </tbody>
       </table>
-      {/*
-        Pagination
-      */}
+
+      {/* Pagination */}
       <ul className={styles.pagination + ' pagination'}>
         <li className="page-item" onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
           <a className="page-link">{t('paginate.first')}</a>
@@ -214,6 +217,7 @@ function PaginationTable({
           {
             Header: tpaginationTable('colDetail.label'),
             accessor: 'detail',
+            canFilter: false
           },
         ],
       },
@@ -225,7 +229,7 @@ function PaginationTable({
   )
 }
 
-
+// Search bar
 function GlobalFilter({
   preGlobalFilteredRows,
   globalFilter,
@@ -254,6 +258,7 @@ function GlobalFilter({
   )
 }
 
+// Search filter for each column
 function ColumnFilter({
   column: { filterValue, preFilteredRows, setFilter },
 }) {

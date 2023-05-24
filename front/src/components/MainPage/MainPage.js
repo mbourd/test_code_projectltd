@@ -11,6 +11,9 @@ const MainPage = ({ }) => {
   const tnotif = translator.notif.t;
   const [listTeam, setListTeam] = useState([]);
 
+  // Get all teams from backend
+  // change country property to the country name
+  // add new property totalPlayers
   useEffect(() => {
     service.createNotification('info', tnotif('info.fetchTeams'));
     service.team.getListTeam()
