@@ -217,7 +217,7 @@ function PaginationTable({
           {
             Header: tpaginationTable('colDetail.label'),
             accessor: 'detail',
-            canFilter: false
+            disableFilters: true
           },
         ],
       },
