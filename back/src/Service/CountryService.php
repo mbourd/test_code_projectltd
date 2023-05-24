@@ -2,7 +2,7 @@
 
 namespace App\Service;
 
-use App\Entity\{Team, Country, Player};
+use App\Entity\{Country};
 use App\Repository\CountryRepository;
 use Doctrine\ORM\{EntityManagerInterface, EntityNotFoundException};
 

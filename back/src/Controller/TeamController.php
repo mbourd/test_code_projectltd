@@ -3,12 +3,10 @@
 namespace App\Controller;
 
 use App\Entity\Team;
-use App\Form\CountryType;
 use App\Form\PlayerType;
 use App\Form\TeamType;
 use App\Service\CountryService;
 use App\Service\TeamService;
-use Doctrine\Common\Collections\ArrayCollection;
 use FOS\RestBundle\Controller\{
     Annotations as Rest,
     AbstractFOSRestController
@@ -30,7 +28,8 @@ class TeamController extends AbstractFOSRestController
      * @Rest\Get("/all")
      *
      * @throws Exception
-     * @param \App\Service\TeamService $teamService
+     * @param TeamService $teamService
+     * @param LoggerInterface $logger
      *
      * @return array
      */
@@ -50,6 +49,7 @@ class TeamController extends AbstractFOSRestController
      * @throws EntityNotFoundException
      * @param int $idTeam
      * @param TeamService $teamService
+     * @param LoggerInterface $logger
      *
      * @return Team
      */

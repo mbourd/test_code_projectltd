@@ -2,9 +2,7 @@
 
 namespace App\Form;
 
-use App\Entity\Country;
-use App\Entity\Player;
-use App\Entity\Team;
+use App\Entity\{Country, Team};
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;

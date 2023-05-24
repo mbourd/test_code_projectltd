@@ -2,17 +2,13 @@
 
 namespace App\Controller;
 
-use App\Entity\Country;
 use App\Service\CountryService;
-use Doctrine\Common\Collections\ArrayCollection;
 use FOS\RestBundle\Controller\{
     Annotations as Rest,
     AbstractFOSRestController
 };
 use Psr\Log\LoggerInterface;
-use Doctrine\ORM\EntityNotFoundException;
 use Exception;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Class CountryController
@@ -25,12 +21,19 @@ class CountryController extends AbstractFOSRestController
     /**
      * @Rest\Get("/all")
      *
+     * @throws Exception
      * @param CountryService $countryService
+     * @param LoggerInterface $logger
      *
      * @return array
      */
-    public function getAllTeam(CountryService $countryService): array
+    public function getAllCountry(CountryService $countryService, LoggerInterface $logger): array
     {
-        return $countryService->getAll();
+        try {
+            return $countryService->getAll();
+        } catch (\Throwable $e) {
+            $logger->error($e->getMessage(), $e->getTrace());
+            throw $e;
+        }
     }
 }

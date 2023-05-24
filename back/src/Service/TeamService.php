@@ -2,11 +2,10 @@
 
 namespace App\Service;
 
-use App\Entity\{Team, Country, Player};
+use App\Entity\{Team, Player};
 use App\Repository\CountryRepository;
 use App\Repository\TeamRepository;
 use Doctrine\ORM\{EntityManagerInterface, EntityNotFoundException};
-use Laminas\Code\Generator\DocBlock\Tag;
 
 class TeamService
 {
@@ -102,6 +101,15 @@ class TeamService
     }
 
 
+    /**
+     * Sell players between teams
+     *
+     * @param array $data
+     * @param Team $team1
+     * @param Team $team2
+     *
+     * @return array
+     */
     public function sellPlayersBetween(array $data, Team $team1, Team $team2): array
     {
         foreach ($data['playersToSell1'] as $_player) {

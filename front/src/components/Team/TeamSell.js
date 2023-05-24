@@ -5,13 +5,10 @@ import styles from './Team.module.css';
 import { createRef, useContext, useEffect, useState } from "react";
 import { service } from "../..";
 import 'react-confirm-alert/src/react-confirm-alert.css';
-import { useLocation } from "react-router";
 import TeamSellColumn from "./components/TeamSellColumn";
 
 const TeamSell = ({ }) => {
   const refForm = createRef();
-  const location = useLocation();
-  const state = location.state;
   const [playersToSell1, setPlayersToSell1] = useState([]);
   const [playersToSell2, setPlayersToSell2] = useState([]);
   const [isSending, setIsSending] = useState(false);
