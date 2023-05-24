@@ -13,6 +13,7 @@ export default {
     sellTeamNoPlayers: `Impossible to proceed sells. No players to sell`,
     sellTeamNegativeBalance: `Impossible to proceed sells: {{teamName}} result balance is negative`,
     sellTeamSameNotAllowed: "Same team not allowed",
+    selltTeamNegativePrice: "Can't sell a player with a negative price",
     createTeamMissingName: 'Player name is missing, then add the new player',
     createTeamMissingSurname: 'Player surname is missing, then add the new player',
   }

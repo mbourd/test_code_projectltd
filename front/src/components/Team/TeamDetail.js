@@ -1,7 +1,7 @@
 import styles from './Team.module.css';
-import { Badge, Card, Col, ListGroup, Row } from "react-bootstrap";
+import { Badge, Button, Card, Col, ListGroup, Row } from "react-bootstrap";
 import { service } from '../..';
-import { useLocation, useParams } from 'react-router';
+import { useLocation, useNavigate, useParams } from 'react-router';
 import { useContext, useEffect, useState } from 'react';
 import Player from '../Player/Player';
 import AnimatedNumber from "animated-number-react";
@@ -12,6 +12,7 @@ const TeamDetail = ({ }) => {
   const translator = { team: useTranslation('team'), notif: useTranslation('notification') };
   const tteam = translator.team.t;
   const tnotif = translator.notif.t;
+  const navigateTo = useNavigate();
   const { id } = useParams();
   const location = useLocation();
   const [team, setTeam] = useState({});
@@ -77,12 +78,19 @@ const TeamDetail = ({ }) => {
           </Row>
         </Col>
         <Col>
-          <Row><h3>{ tteam('detail.colListPlayers')}</h3></Row>
+          <Row><h3>{tteam('detail.colListPlayers')}</h3></Row>
           <Row>
             {players.map((player, i) => {
               return <Player key={'player-' + player.id} player={player} />
             })}
           </Row>
+          {team.players?.length > 0 && <Row>
+            <Col>
+              <Button onClick={() => {
+                navigateTo('/team/sell', { state: { team } });
+              }}>Sell players</Button>
+            </Col>
+          </Row>}
         </Col>
       </Row>
     </div>

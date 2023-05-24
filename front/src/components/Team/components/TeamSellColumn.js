@@ -5,6 +5,7 @@ import AnimatedNumber from "animated-number-react";
 import Player from "../../Player/Player";
 import { useTranslation } from 'react-i18next';
 import i18n from "../../../i18n";
+import { service } from "../../..";
 
 const TeamSellColumn = ({
   resultIncome = 0,
@@ -112,7 +113,7 @@ const TeamSellColumn = ({
           </Row>
           <Row>
             <Col>
-              {/* Input list players available 1  */}
+              {/* Input list players available */}
               <Form.Group className="mb-3" controlId="country">
                 <Form.Label>{tteam('sell.form.group.playerToSell.label')}</Form.Label>
                 <Form.Control
@@ -138,9 +139,9 @@ const TeamSellColumn = ({
               </Form.Group>
             </Col>
             <Col>
-              {/* Input price 1 */}
+              {/* Input price */}
               <Form.Group className="mb-6">
-              <Form.Label>{ tteam('sell.form.group.price.label')}</Form.Label>
+                <Form.Label>{tteam('sell.form.group.price.label')}</Form.Label>
                 <Form.Control
                   disabled={isSending}
                   name={"price" + numCol}
@@ -167,6 +168,10 @@ const TeamSellColumn = ({
                   variant="success"
                   value={tteam('sell.form.group.buttonAdd')}
                   onClick={() => {
+                    if (values['price' + numCol] < 0) {
+                      service.createNotification('error', tnotif('error.selltTeamNegativePrice'));
+                      return;
+                    }
                     if (values['playerToSell' + numCol] !== "") {
                       const _player = { ...listPlayersAvailable.find(p => p.id === parseInt(values['playerToSell' + numCol])), price: parseFloat(values['price' + numCol]) };
                       const _players = [...playersToSell, _player];

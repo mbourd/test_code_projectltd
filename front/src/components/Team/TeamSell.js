@@ -8,11 +8,13 @@ import 'react-confirm-alert/src/react-confirm-alert.css';
 import TeamSellColumn from "./components/TeamSellColumn";
 import { useTranslation } from 'react-i18next';
 import i18n from '../../i18n';
+import { useLocation } from "react-router";
 
 const TeamSell = ({ }) => {
   const translator = { team: useTranslation('team'), notif: useTranslation('notification') };
   const tteam = translator.team.t;
   const tnotif = translator.notif.t;
+  const location = useLocation();
   const refForm = createRef();
   const [playersToSell1, setPlayersToSell1] = useState([]);
   const [playersToSell2, setPlayersToSell2] = useState([]);
@@ -35,6 +37,9 @@ const TeamSell = ({ }) => {
       .then(r => {
         setListTeams1([{ id: "", name: tteam('sell.form.input.select.defaultOptionLabel') }, ...r.data]);
         setListTeams2([{ id: "", name: tteam('sell.form.input.select.defaultOptionLabel') }, ...r.data]);
+        if (location.state?.team?.id) {
+          setSelectedIdTeam1(location.state.team.id);
+        }
       })
       .catch(e => {
         service.createNotification('error', `${e.code}: ${e?.response?.data?.detail}`);
@@ -109,7 +114,7 @@ const TeamSell = ({ }) => {
           <Formik
             innerRef={refForm}
             initialValues={{
-              idTeam1: selectedIdTeam1,
+              idTeam1: location.state?.team?.id ? location.state.team.id : selectedIdTeam1,
               idTeam2: selectedIdTeam2,
               playersToSell1: playersToSell1,
               playersToSell2: playersToSell2,

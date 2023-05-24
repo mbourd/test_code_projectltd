@@ -206,6 +206,9 @@ class TeamController extends AbstractFOSRestController
                             "{{id}}" => $_player['id']
                         ], 'messages', $lng));
                     }
+                    if ($_player['price'] < 0) {
+                        throw new Exception($translator->trans("controller.team.proceedSells.playerNegativePrice", [], 'messages', $lng));
+                    }
 
                     unset($_player['price']);
                     unset($_player['id']);
