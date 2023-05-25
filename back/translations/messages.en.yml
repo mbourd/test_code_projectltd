@@ -1,6 +1,7 @@
 controller:
   team:
     getTeam:
+      teamIdNull: "Team id is null"
       teamNotFound: "Team id {{id}} not found"
     createTeam:
       countryIdNull: "Country id is null"

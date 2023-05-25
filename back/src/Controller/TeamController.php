@@ -65,6 +65,10 @@ class TeamController extends AbstractFOSRestController
             // Get the language
             $lng = $request->headers->get('lng');
 
+            if ($idTeam === "") {
+                throw new EntityNotFoundException($translator->trans('controller.team.getTeam.teamIdNull', [], 'messages', $lng));
+            }
+
             $entity = $teamService->getById(intval($idTeam));
 
             if (is_null($entity)) {
