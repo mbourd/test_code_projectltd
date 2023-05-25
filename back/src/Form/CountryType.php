@@ -12,8 +12,7 @@ class CountryType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('name', TextType::class)
-        ;
+            ->add('name', TextType::class, ['required' => true]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

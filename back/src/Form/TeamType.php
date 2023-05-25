@@ -16,17 +16,18 @@ class TeamType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('name', TextType::class)
-            ->add('moneyBalance', NumberType::class)
+            ->add('name', TextType::class, ['required' => true])
+            ->add('moneyBalance', NumberType::class, ['required' => true])
             ->add('country', EntityType::class, [
-                'class' => Country::class
+                'class' => Country::class,
+                'required' => true,
             ])
             ->add('players', CollectionType::class, [
                 'entry_type' => PlayerType::class,
                 'allow_add' => true,
-                // 'allow_delete' => true
-            ])
-        ;
+                // 'allow_delete' => true,
+                'required' => true,
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
