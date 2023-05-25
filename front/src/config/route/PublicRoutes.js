@@ -10,7 +10,7 @@ const routes = [
   { path: "/team/show/:id", component: TeamDetail },
   { path: "/team/create", component: TeamCreate },
   { path: "/team/sell", component: TeamSell },
-  { path: "*", component: MainPage },
+  { path: "*", component: MainPage }, // or 404 page
 ];
 
 const PublicRoutes = ({ }) => {
