@@ -11,6 +11,9 @@ What we need in our app:
 - Make a page where we can add a new team and its players.
 - Make a page where we can sell/buy a player for a certain amount between two teams.
 
+## Access to the application
+- `http://localhost:3000`
+
 ## Note
 
 I developed on WSL Linux Ubuntu 20.04 on a virtual machine.
