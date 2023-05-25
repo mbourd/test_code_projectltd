@@ -73,7 +73,7 @@ class TeamController extends AbstractFOSRestController
 
             if (is_null($entity)) {
                 throw new EntityNotFoundException($translator->trans("controller.team.getTeam.teamNotFound", [
-                    "{{id}}" => $$idTeam
+                    "{{id}}" => $idTeam
                 ], 'messages', $lng));
             }
 

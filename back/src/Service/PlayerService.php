@@ -30,7 +30,7 @@ class PlayerService
      * @param int $id
      * @return Player
      */
-    public function getById(int $id): Player
+    public function getById(int $id): ?Player
     {
         $entity = $this->repo->find($id);
 

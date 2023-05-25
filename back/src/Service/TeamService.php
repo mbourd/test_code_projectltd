@@ -51,7 +51,7 @@ class TeamService
      * @param int $id
      * @return Team
      */
-    public function getById(int $id): Team
+    public function getById(int $id): ?Team
     {
         $entity = $this->repo->find($id);
 

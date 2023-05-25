@@ -38,7 +38,7 @@ class CountryService
      * @param int $id
      * @return Country
      */
-    public function getById(int $id): Country
+    public function getById(int $id): ?Country
     {
         $entity = $this->repo->find($id);
 
