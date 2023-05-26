@@ -15,9 +15,12 @@ use FOS\RestBundle\Controller\{
     AbstractFOSRestController
 };
 use Psr\Log\LoggerInterface;
-use Doctrine\ORM\EntityNotFoundException;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\{
+    BadRequestHttpException,
+    NotFoundHttpException
+};
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
@@ -50,7 +53,7 @@ class TeamController extends AbstractFOSRestController
     /**
      * @Rest\Get("/{idTeam}")
      *
-     * @throws EntityNotFoundException
+     * @throws Exception
      * @param int $idTeam
      * @param Request $request
      * @param TeamService $teamService
@@ -66,19 +69,19 @@ class TeamController extends AbstractFOSRestController
             $lng = $request->headers->get('lng');
 
             if ($idTeam === "") {
-                throw new EntityNotFoundException($translator->trans('controller.team.getTeam.teamIdNull', [], 'messages', $lng));
+                throw new NotFoundHttpException($translator->trans('controller.team.getTeam.teamIdNull', [], 'messages', $lng));
             }
 
             $entity = $teamService->getById(intval($idTeam));
 
             if (is_null($entity)) {
-                throw new EntityNotFoundException($translator->trans("controller.team.getTeam.teamNotFound", [
+                throw new NotFoundHttpException($translator->trans("controller.team.getTeam.teamNotFound", [
                     "{{id}}" => $idTeam
                 ], 'messages', $lng));
             }
 
             return $entity;
-        } catch (EntityNotFoundException $e) {
+        } catch (\Throwable $e) {
             $logger->error($e->getMessage(), $e->getTrace());
             throw $e;
         }
@@ -105,7 +108,7 @@ class TeamController extends AbstractFOSRestController
             $data = json_decode($request->getContent(), true);
 
             if (!isset($data['country']) || is_null($data['country'])) {
-                throw new EntityNotFoundException($translator->trans('controller.team.createTeam.countryIdNull', [], 'messages', $lng));
+                throw new NotFoundHttpException($translator->trans('controller.team.createTeam.countryIdNull', [], 'messages', $lng));
             }
 
             $data['country'] = intval($data['country']);
@@ -113,7 +116,7 @@ class TeamController extends AbstractFOSRestController
 
             // Check if the Country exist
             if (is_null($country)) {
-                throw new EntityNotFoundException($translator->trans("controller.team.createTeam.countryNotFound", [
+                throw new NotFoundHttpException($translator->trans("controller.team.createTeam.countryNotFound", [
                     "{{id}}" => $data['country']
                 ], 'messages', $lng));
             }
@@ -123,7 +126,7 @@ class TeamController extends AbstractFOSRestController
                 $form = $this->createForm(PlayerType::class, null, ['method' => 'POST', 'csrf_protection' => false]);
                 $form->submit($_player, true);
                 if (!$form->isValid()) {
-                    throw new Exception($form->getErrors(true, true)->__toString());
+                    throw new BadRequestHttpException($form->getErrors(true, true)->__toString());
                 }
             }
 
@@ -131,7 +134,7 @@ class TeamController extends AbstractFOSRestController
             $form = $this->createForm(TeamType::class, null, ['method' => 'POST', 'csrf_protection' => false]);
             $form->submit($data, true);
             if (!$form->isValid()) {
-                throw new Exception($form->getErrors(true, true)->__toString());
+                throw new BadRequestHttpException($form->getErrors(true, true)->__toString());
             }
 
             // Create the team with its players
@@ -165,19 +168,19 @@ class TeamController extends AbstractFOSRestController
 
             // Check if keys exists
             if (!isset($data['idTeam1']) || is_null($data['idTeam1'])) {
-                throw new EntityNotFoundException($translator->trans("controller.team.proceedSells.idTeam1Null", [], 'messages', $lng));
+                throw new NotFoundHttpException($translator->trans("controller.team.proceedSells.idTeam1Null", [], 'messages', $lng));
             }
             if (!isset($data['idTeam2']) || is_null($data['idTeam2'])) {
-                throw new EntityNotFoundException($translator->trans("controller.team.proceedSells.idTeam2Null", [], 'messages', $lng));
+                throw new NotFoundHttpException($translator->trans("controller.team.proceedSells.idTeam2Null", [], 'messages', $lng));
             }
             if (!isset($data['playersToSell1']) || !isset($data['playersToSell2'])) {
-                throw new Exception($translator->trans("controller.team.proceedSells.playersToSellMissing", [], 'messages', $lng));
+                throw new BadRequestHttpException($translator->trans("controller.team.proceedSells.playersToSellMissing", [], 'messages', $lng));
             }
             if (!is_array($data['playersToSell1'])) {
-                throw new Exception($translator->trans("controller.team.proceedSells.playersToSell1NotArray", [], 'messages', $lng));
+                throw new BadRequestHttpException($translator->trans("controller.team.proceedSells.playersToSell1NotArray", [], 'messages', $lng));
             }
             if (!is_array($data['playersToSell2'])) {
-                throw new Exception($translator->trans("controller.team.proceedSells.playersToSell2NotArray", [], 'messages', $lng));
+                throw new BadRequestHttpException($translator->trans("controller.team.proceedSells.playersToSell2NotArray", [], 'messages', $lng));
             }
 
             $data['idTeam1'] = intval($data['idTeam1']);
@@ -187,21 +190,21 @@ class TeamController extends AbstractFOSRestController
 
             // Check if Team exists
             if (is_null($team1)) {
-                throw new EntityNotFoundException($translator->trans("controller.team.proceedSells.teamNotFound", [
+                throw new NotFoundHttpException($translator->trans("controller.team.proceedSells.teamNotFound", [
                     "{{id}}" => $data['idTeam1']
                 ], 'messages', $lng));
             }
             if (is_null($team2)) {
-                throw new EntityNotFoundException($translator->trans("controller.team.proceedSells.teamNotFound", [
+                throw new NotFoundHttpException($translator->trans("controller.team.proceedSells.teamNotFound", [
                     "{{id}}" => $data['idTeam2']
                 ], 'messages', $lng));
             }
             // Same Team not allowed
             if ($team1->getId() === $team2->getId()) {
-                throw new Exception($translator->trans("controller.team.proceedSells.sameTeamNotAllowed", [], 'messages', $lng));
+                throw new BadRequestHttpException($translator->trans("controller.team.proceedSells.sameTeamNotAllowed", [], 'messages', $lng));
             }
             if (count($data['playersToSell1']) === 0 && count($data['playersToSell2']) === 0) {
-                throw new Exception($translator->trans("controller.team.proceedSells.noPlayersToSellNotAllowed", [], 'messages', $lng));
+                throw new BadRequestHttpException($translator->trans("controller.team.proceedSells.noPlayersToSellNotAllowed", [], 'messages', $lng));
             }
 
             // Check type for every player
@@ -210,13 +213,13 @@ class TeamController extends AbstractFOSRestController
                     $_player = array_merge([], $player);
 
                     if (is_null($playerService->getById($_player['id']))) {
-                        throw new EntityNotFoundException($translator->trans("controller.team.proceedSells.playerNotFound", [
+                        throw new NotFoundHttpException($translator->trans("controller.team.proceedSells.playerNotFound", [
                             "{{id}}" => $_player['id']
                         ], 'messages', $lng));
                     }
                     // Negative price not allowed
                     if ($_player['price'] < 0) {
-                        throw new Exception($translator->trans("controller.team.proceedSells.playerNegativePrice", [], 'messages', $lng));
+                        throw new BadRequestHttpException($translator->trans("controller.team.proceedSells.playerNegativePrice", [], 'messages', $lng));
                     }
 
                     unset($_player['price']);
@@ -225,7 +228,7 @@ class TeamController extends AbstractFOSRestController
                     $form->submit($_player, true);
 
                     if (!$form->isValid()) {
-                        throw new Exception($form->getErrors(true, true)->__toString());
+                        throw new BadRequestHttpException($form->getErrors(true, true)->__toString());
                     }
                 }
             }
@@ -248,12 +251,12 @@ class TeamController extends AbstractFOSRestController
 
             // Negative balance not allowed
             if ($balance1 < 0) {
-                throw new Exception($translator->trans("controller.team.proceedSells.balanceNegative", [
+                throw new BadRequestHttpException($translator->trans("controller.team.proceedSells.balanceNegative", [
                     "{{teamName}}" => $team1->getName()
                 ], 'messages', $lng));
             }
             if ($balance2 < 0) {
-                throw new Exception($translator->trans("controller.team.proceedSells.balanceNegative", [
+                throw new BadRequestHttpException($translator->trans("controller.team.proceedSells.balanceNegative", [
                     "{{teamName}}" => $team2->getName()
                 ], 'messages', $lng));
             }
