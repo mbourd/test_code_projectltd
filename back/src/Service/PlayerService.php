@@ -42,9 +42,9 @@ class PlayerService
      *
      * @return Player
      */
-    public function save(Player $player): Player
+    public function save(Player $player, bool $flush = false): Player
     {
-        $this->repo->save($player, true);
+        $this->repo->save($player, $flush);
         return $player;
     }
 }
