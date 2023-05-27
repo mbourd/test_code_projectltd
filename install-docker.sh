@@ -6,7 +6,8 @@ sudo usermod -aG docker ${USER}
 newgrp docker
 groups
 sudo chown root:docker /var/run/docker.sock
-su - ${USER} # to reload the terminal (must reenter your password)
+# su - ${USER} # to reload the terminal (must reenter your password)
+reset
 sudo service docker start
 docker version
 docker info
