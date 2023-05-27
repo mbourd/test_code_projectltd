@@ -7,6 +7,7 @@ import TeamSell from '../../components/Team/TeamSell';
 
 const routes = [
   { path: "/", component: MainPage },
+  { path: "/team/show/all", component: MainPage },
   { path: "/team/show/:id", component: TeamDetail },
   { path: "/team/create", component: TeamCreate },
   { path: "/team/sell", component: TeamSell },

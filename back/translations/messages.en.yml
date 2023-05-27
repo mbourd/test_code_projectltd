@@ -3,6 +3,7 @@ controller:
     getTeam:
       teamIdNull: "Team id is null"
       teamNotFound: "Team id {{id}} not found"
+      teamIdNotNumeric: Team id must be an integer
     createTeam:
       countryIdNull: "Country id is null"
       countryNotFound: "Country id {{id}} not found"

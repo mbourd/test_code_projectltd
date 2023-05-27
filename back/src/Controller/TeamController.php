@@ -54,7 +54,7 @@ class TeamController extends AbstractFOSRestController
      * @Rest\Get("/{idTeam}")
      *
      * @throws Exception
-     * @param int $idTeam
+     * @param string $idTeam
      * @param Request $request
      * @param TeamService $teamService
      * @param TranslatorInterface $translator
@@ -62,7 +62,7 @@ class TeamController extends AbstractFOSRestController
      *
      * @return Team
      */
-    public function getTeam(int $idTeam, Request $request, TeamService $teamService, TranslatorInterface $translator, LoggerInterface $logger): Team
+    public function getTeam(string $idTeam, Request $request, TeamService $teamService, TranslatorInterface $translator, LoggerInterface $logger): Team
     {
         try {
             // Get the language
@@ -70,6 +70,10 @@ class TeamController extends AbstractFOSRestController
 
             if ($idTeam === "") {
                 throw new NotFoundHttpException($translator->trans('controller.team.getTeam.teamIdNull', [], 'messages', $lng));
+            }
+
+            if (!is_numeric($idTeam)) {
+                throw new BadRequestHttpException($translator->trans('controller.team.getTeam.teamIdNotNumeric', [], 'messages', $lng));
             }
 
             $entity = $teamService->getById(intval($idTeam));
