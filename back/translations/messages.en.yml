@@ -7,7 +7,7 @@ controller:
     createTeam:
       countryIdNull: "Country id is null"
       countryNotFound: "Country id {{id}} not found"
-      countryIdNotNumeric: "Team id must be an integer"
+      countryIdNotNumeric: "Country id must be an integer"
     proceedSells:
       idTeam1Null: "Team 1 id is null"
       idTeam2Null: "Team 2 id is null"
