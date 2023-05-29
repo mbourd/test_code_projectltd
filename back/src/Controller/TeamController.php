@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\Team;
+use App\Exceptions\{
+    MyBadRequestHttpException,
+    MyNotFoundHttpException
+};
 use App\Form\PlayerType;
 use App\Form\TeamType;
 use App\Service\CountryService;
@@ -69,22 +73,32 @@ class TeamController extends AbstractFOSRestController
             $lng = $request->headers->get('lng');
 
             if ($idTeam === "") {
-                throw new NotFoundHttpException($translator->trans('controller.team.getTeam.teamIdNull', [], 'messages', $lng));
+                throw new MyNotFoundHttpException('controller.team.getTeam.teamIdNull', [[], 'messages', $lng]);
             }
 
             if (!is_numeric($idTeam)) {
-                throw new BadRequestHttpException($translator->trans('controller.team.getTeam.teamIdNotNumeric', [], 'messages', $lng));
+                throw new MyBadRequestHttpException('controller.team.getTeam.teamIdNotNumeric', [[], 'messages', $lng]);
             }
 
             $entity = $teamService->getById(intval($idTeam));
 
             if (is_null($entity)) {
-                throw new NotFoundHttpException($translator->trans("controller.team.getTeam.teamNotFound", [
+                throw new MyNotFoundHttpException("controller.team.getTeam.teamNotFound", [[
                     "{{id}}" => $idTeam
-                ], 'messages', $lng));
+                ], 'messages', $lng]);
             }
 
             return $entity;
+        } catch (MyNotFoundHttpException $e) {
+            $logger->error($translator->trans($e->getMessage(), $e->getExtra()[0], $e->getExtra()[1], 'en'), $e->getTrace());
+            throw new MyNotFoundHttpException(
+                $translator->trans($e->getMessage(), ...$e->getExtra())
+            );
+        } catch (MyBadRequestHttpException $e) {
+            $logger->error($translator->trans($e->getMessage(), $e->getExtra()[0], $e->getExtra()[1], 'en'), $e->getTrace());
+            throw new MyBadRequestHttpException(
+                $translator->trans($e->getMessage(), ...$e->getExtra())
+            );
         } catch (\Throwable $e) {
             $logger->error($e->getMessage(), $e->getTrace());
             throw $e;
@@ -112,7 +126,11 @@ class TeamController extends AbstractFOSRestController
             $data = json_decode($request->getContent(), true);
 
             if (!isset($data['country']) || is_null($data['country'])) {
-                throw new NotFoundHttpException($translator->trans('controller.team.createTeam.countryIdNull', [], 'messages', $lng));
+                throw new MyNotFoundHttpException('controller.team.createTeam.countryIdNull', [[], 'messages', $lng]);
+            }
+
+            if (!is_numeric($data['country'])) {
+                throw new MyBadRequestHttpException('controller.team.getTeam.countryIdNotNumeric', [[], 'messages', $lng]);
             }
 
             $data['country'] = intval($data['country']);
@@ -120,9 +138,9 @@ class TeamController extends AbstractFOSRestController
 
             // Check if the Country exist
             if (is_null($country)) {
-                throw new NotFoundHttpException($translator->trans("controller.team.createTeam.countryNotFound", [
+                throw new MyNotFoundHttpException("controller.team.createTeam.countryNotFound", [[
                     "{{id}}" => $data['country']
-                ], 'messages', $lng));
+                ], 'messages', $lng]);
             }
 
             foreach ($data['players'] as $player) {
@@ -130,7 +148,7 @@ class TeamController extends AbstractFOSRestController
                 $form = $this->createForm(PlayerType::class, null, ['method' => 'POST', 'csrf_protection' => false]);
                 $form->submit($_player, true);
                 if (!$form->isValid()) {
-                    throw new BadRequestHttpException($form->getErrors(true, true)->__toString());
+                    throw new MyBadRequestHttpException($form->getErrors(true, true)->__toString());
                 }
             }
 
@@ -138,11 +156,21 @@ class TeamController extends AbstractFOSRestController
             $form = $this->createForm(TeamType::class, null, ['method' => 'POST', 'csrf_protection' => false]);
             $form->submit($data, true);
             if (!$form->isValid()) {
-                throw new BadRequestHttpException($form->getErrors(true, true)->__toString());
+                throw new MyBadRequestHttpException($form->getErrors(true, true)->__toString());
             }
 
             // Create the team with its players
             return $teamService->createTeam($data);
+        } catch (MyNotFoundHttpException $e) {
+            $logger->error($translator->trans($e->getMessage(), $e->getExtra()[0], $e->getExtra()[1], 'en'), $e->getTrace());
+            throw new MyNotFoundHttpException(
+                $translator->trans($e->getMessage(), ...$e->getExtra())
+            );
+        } catch (MyBadRequestHttpException $e) {
+            $logger->error($translator->trans($e->getMessage(), $e->getExtra()[0], $e->getExtra()[1], 'en'), $e->getTrace());
+            throw new MyBadRequestHttpException(
+                $translator->trans($e->getMessage(), ...$e->getExtra())
+            );
         } catch (\Throwable $e) {
             $logger->error($e->getMessage(), $e->getTrace());
             throw $e;
@@ -172,19 +200,19 @@ class TeamController extends AbstractFOSRestController
 
             // Check if keys exists
             if (!isset($data['idTeam1']) || is_null($data['idTeam1'])) {
-                throw new NotFoundHttpException($translator->trans("controller.team.proceedSells.idTeam1Null", [], 'messages', $lng));
+                throw new MyNotFoundHttpException("controller.team.proceedSells.idTeam1Null", [[], 'messages', $lng]);
             }
             if (!isset($data['idTeam2']) || is_null($data['idTeam2'])) {
-                throw new NotFoundHttpException($translator->trans("controller.team.proceedSells.idTeam2Null", [], 'messages', $lng));
+                throw new MyNotFoundHttpException("controller.team.proceedSells.idTeam2Null", [[], 'messages', $lng]);
             }
             if (!isset($data['playersToSell1']) || !isset($data['playersToSell2'])) {
-                throw new BadRequestHttpException($translator->trans("controller.team.proceedSells.playersToSellMissing", [], 'messages', $lng));
+                throw new MyBadRequestHttpException("controller.team.proceedSells.playersToSellMissing", [[], 'messages', $lng]);
             }
             if (!is_array($data['playersToSell1'])) {
-                throw new BadRequestHttpException($translator->trans("controller.team.proceedSells.playersToSell1NotArray", [], 'messages', $lng));
+                throw new MyBadRequestHttpException("controller.team.proceedSells.playersToSell1NotArray", [[], 'messages', $lng]);
             }
             if (!is_array($data['playersToSell2'])) {
-                throw new BadRequestHttpException($translator->trans("controller.team.proceedSells.playersToSell2NotArray", [], 'messages', $lng));
+                throw new MyBadRequestHttpException("controller.team.proceedSells.playersToSell2NotArray", [[], 'messages', $lng]);
             }
 
             $data['idTeam1'] = intval($data['idTeam1']);
@@ -194,21 +222,21 @@ class TeamController extends AbstractFOSRestController
 
             // Check if Team exists
             if (is_null($team1)) {
-                throw new NotFoundHttpException($translator->trans("controller.team.proceedSells.teamNotFound", [
+                throw new MyNotFoundHttpException("controller.team.proceedSells.teamNotFound", [[
                     "{{id}}" => $data['idTeam1']
-                ], 'messages', $lng));
+                ], 'messages', $lng]);
             }
             if (is_null($team2)) {
-                throw new NotFoundHttpException($translator->trans("controller.team.proceedSells.teamNotFound", [
+                throw new MyNotFoundHttpException("controller.team.proceedSells.teamNotFound", [[
                     "{{id}}" => $data['idTeam2']
-                ], 'messages', $lng));
+                ], 'messages', $lng]);
             }
             // Same Team not allowed
             if ($team1->getId() === $team2->getId()) {
-                throw new BadRequestHttpException($translator->trans("controller.team.proceedSells.sameTeamNotAllowed", [], 'messages', $lng));
+                throw new MyBadRequestHttpException("controller.team.proceedSells.sameTeamNotAllowed", [[], 'messages', $lng]);
             }
             if (count($data['playersToSell1']) === 0 && count($data['playersToSell2']) === 0) {
-                throw new BadRequestHttpException($translator->trans("controller.team.proceedSells.noPlayersToSellNotAllowed", [], 'messages', $lng));
+                throw new MyBadRequestHttpException("controller.team.proceedSells.noPlayersToSellNotAllowed", [[], 'messages', $lng]);
             }
 
             // Check type for every player
@@ -217,13 +245,13 @@ class TeamController extends AbstractFOSRestController
                     $_player = array_merge([], $player);
 
                     if (is_null($playerService->getById($_player['id']))) {
-                        throw new NotFoundHttpException($translator->trans("controller.team.proceedSells.playerNotFound", [
+                        throw new MyNotFoundHttpException("controller.team.proceedSells.playerNotFound", [[
                             "{{id}}" => $_player['id']
-                        ], 'messages', $lng));
+                        ], 'messages', $lng]);
                     }
                     // Negative price not allowed
                     if ($_player['price'] < 0) {
-                        throw new BadRequestHttpException($translator->trans("controller.team.proceedSells.playerNegativePrice", [], 'messages', $lng));
+                        throw new MyBadRequestHttpException("controller.team.proceedSells.playerNegativePrice", [[], 'messages', $lng]);
                     }
 
                     unset($_player['price']);
@@ -232,7 +260,7 @@ class TeamController extends AbstractFOSRestController
                     $form->submit($_player, true);
 
                     if (!$form->isValid()) {
-                        throw new BadRequestHttpException($form->getErrors(true, true)->__toString());
+                        throw new MyBadRequestHttpException($form->getErrors(true, true)->__toString());
                     }
                 }
             }
@@ -255,18 +283,28 @@ class TeamController extends AbstractFOSRestController
 
             // Negative balance not allowed
             if ($balance1 < 0) {
-                throw new BadRequestHttpException($translator->trans("controller.team.proceedSells.balanceNegative", [
+                throw new MyBadRequestHttpException("controller.team.proceedSells.balanceNegative", [[
                     "{{teamName}}" => $team1->getName()
-                ], 'messages', $lng));
+                ], 'messages', $lng]);
             }
             if ($balance2 < 0) {
-                throw new BadRequestHttpException($translator->trans("controller.team.proceedSells.balanceNegative", [
+                throw new MyBadRequestHttpException("controller.team.proceedSells.balanceNegative", [[
                     "{{teamName}}" => $team2->getName()
-                ], 'messages', $lng));
+                ], 'messages', $lng]);
             }
 
             // Proceed the players sell between the two teams
             return $teamService->sellPlayersBetween($data, $team1, $team2);
+        } catch (MyNotFoundHttpException $e) {
+            $logger->error($translator->trans($e->getMessage(), $e->getExtra()[0], $e->getExtra()[1], 'en'), $e->getTrace());
+            throw new MyNotFoundHttpException(
+                $translator->trans($e->getMessage(), ...$e->getExtra())
+            );
+        } catch (MyBadRequestHttpException $e) {
+            $logger->error($translator->trans($e->getMessage(), $e->getExtra()[0], $e->getExtra()[1], 'en'), $e->getTrace());
+            throw new MyBadRequestHttpException(
+                $translator->trans($e->getMessage(), ...$e->getExtra())
+            );
         } catch (\Throwable $e) {
             $logger->error($e->getMessage(), $e->getTrace());
             throw $e;
